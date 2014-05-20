@@ -21,10 +21,6 @@
 */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace PartAngleDisplay
@@ -37,11 +33,9 @@ namespace PartAngleDisplay
         Rect WindowRect;
 
         EditorLogic editor;
-        GUIStyle headingStyle;
-        GUIStyle dataStyle;
         GUIStyle windowStyle;
-        GUIStyle buttonStyle;
         GUIStyle areaStyle;
+        GUIStyle dataStyle;
         Vector3 eulerAngles;    // The current part rotation angles
         Vector3 incAngles;      // The current angle increments to apply
 
@@ -62,17 +56,16 @@ namespace PartAngleDisplay
             }
         }
 
-
         public EditorWindow()
         {
-            Trace("EditorWindow.EditorWindow");
+            //Trace("EditorWindow.EditorWindow");
 
             WindowID = Guid.NewGuid().GetHashCode();
         }
 
         public void Awake()
         {
-            Trace("EditorWindow.Awake");
+            //Trace("EditorWindow.Awake");
 
             editor = EditorLogic.fetch;
 
@@ -114,7 +107,7 @@ namespace PartAngleDisplay
             {
                 if (editor.PartSelected)
                 {
-                    Trace("Applying part rotation");
+                    //Trace("Applying part rotation");
                     editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
                 }
                 else
@@ -128,9 +121,7 @@ namespace PartAngleDisplay
         private void DoPostDraw()
         {
             if (Visible)
-            {
                 WindowRect = GUILayout.Window(WindowID, WindowRect, Window, WindowTitle, windowStyle);
-            }
         }
 
         private void Window(int windowID)
@@ -160,22 +151,12 @@ namespace PartAngleDisplay
             GUI.DragWindow();
         }
 
-
-
         private void InitStyles()
         {
             windowStyle = new GUIStyle(HighLogic.Skin.window);
 
-            buttonStyle = new GUIStyle(HighLogic.Skin.button);
-
             areaStyle = new GUIStyle(HighLogic.Skin.textArea);
             areaStyle.active = areaStyle.hover = areaStyle.normal;
-
-            headingStyle = new GUIStyle(HighLogic.Skin.label);
-            headingStyle.normal.textColor = Color.white;
-            headingStyle.fontStyle = FontStyle.Normal;
-            headingStyle.alignment = TextAnchor.MiddleCenter;
-            headingStyle.stretchWidth = true;
 
             dataStyle = new GUIStyle(HighLogic.Skin.label);
             dataStyle.fontStyle = FontStyle.Normal;
@@ -183,19 +164,11 @@ namespace PartAngleDisplay
             dataStyle.stretchWidth = true;
         }
 
+#if false
         private void Trace(String message)
         {
             print(message);
         }
-
-        private float ToDeg(float radians)
-        {
-            return radians * 180f / (float)Math.PI;
-        }
-
-        private float ToRad(float degrees)
-        {
-            return degrees * (float)Math.PI / 180f;
-        }
+#endif
     }
 }
