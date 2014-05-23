@@ -38,6 +38,9 @@ namespace PartAngleDisplay
         GUIStyle dataStyle;
         Vector3 eulerAngles;    // The current part rotation angles
         Vector3 incAngles;      // The current angle increments to apply
+        String sPitch = "0.0";
+        String sRoll = "0.0";
+        String sYaw = "0.0";
 
         private Boolean _Visible = false;
         public Boolean Visible
@@ -108,6 +111,10 @@ namespace PartAngleDisplay
                 if (editor.PartSelected)
                 {
                     //Trace("Applying part rotation");
+                    Vector3 incAngles;
+                    incAngles.x = GetSingleOrZero(sPitch);
+                    incAngles.y = GetSingleOrZero(sRoll);
+                    incAngles.z = GetSingleOrZero(sYaw);
                     editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
                 }
                 else
@@ -141,14 +148,25 @@ namespace PartAngleDisplay
             GUILayout.Label(eulerAngles.x.ToString("0.00"), dataStyle);
             GUILayout.Label(eulerAngles.y.ToString("0.00"), dataStyle);
             GUILayout.Label(eulerAngles.z.ToString("0.00"), dataStyle);
-            incAngles.x = Convert.ToSingle(GUILayout.TextField(incAngles.x.ToString("0.00"), 8));
-            incAngles.y = Convert.ToSingle(GUILayout.TextField(incAngles.y.ToString("0.00"), 8));
-            incAngles.z = Convert.ToSingle(GUILayout.TextField(incAngles.z.ToString("0.00"), 8));
+            sPitch = GUILayout.TextField(sPitch, 10);
+            sRoll = GUILayout.TextField(sRoll, 10);
+            sYaw = GUILayout.TextField(sYaw, 10);
+
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
 
             GUI.DragWindow();
+        }
+
+        private float GetSingleOrZero(String str)
+        {
+            float temp;
+            if (Single.TryParse(str, out temp))
+            {
+                return temp;
+            }
+            return 0f;
         }
 
         private void InitStyles()
