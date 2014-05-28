@@ -36,11 +36,15 @@ namespace PartAngleDisplay
         GUIStyle windowStyle;
         GUIStyle areaStyle;
         GUIStyle dataStyle;
+        GUIStyle badDataStyle;
+        GUIStyle buttonStyle;
         Vector3 eulerAngles;    // The current part rotation angles
-        Vector3 incAngles;      // The current angle increments to apply
         String sPitch = "0.0";
         String sRoll = "0.0";
         String sYaw = "0.0";
+        String sIncPitch = "0.0";
+        String sIncRoll = "0.0";
+        String sIncYaw = "0.0";
 
         private Boolean _Visible = false;
         public Boolean Visible
@@ -74,8 +78,8 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display";
-            WindowRect = new Rect(0, 0, 160, 200);
+            WindowTitle = "Part Angle Display (0.1.0.1)";
+            WindowRect = new Rect(300, 200, 200, 50);
 
             Visible = false;
         }
@@ -99,6 +103,9 @@ namespace PartAngleDisplay
             {
                 eulerAngles = Vector3.zero;
             }
+            sPitch = eulerAngles.x.ToString("0.00");
+            sRoll = eulerAngles.y.ToString("0.00");
+            sYaw = eulerAngles.z.ToString("0.00");
 
             //check for the various alt/mod etc keypresses
             bool altKeyPressed = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr);
@@ -112,9 +119,9 @@ namespace PartAngleDisplay
                 {
                     //Trace("Applying part rotation");
                     Vector3 incAngles;
-                    incAngles.x = GetSingleOrZero(sPitch);
-                    incAngles.y = GetSingleOrZero(sRoll);
-                    incAngles.z = GetSingleOrZero(sYaw);
+                    incAngles.x = GetSingleOrZero(sIncPitch);
+                    incAngles.y = GetSingleOrZero(sIncRoll);
+                    incAngles.z = GetSingleOrZero(sIncYaw);
                     editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
                 }
                 else
@@ -139,24 +146,45 @@ namespace PartAngleDisplay
             GUILayout.Label("Pitch");
             GUILayout.Label("Roll");
             GUILayout.Label("Yaw");
-            GUILayout.Label("Pitch +/-");
-            GUILayout.Label("Roll +/-");
-            GUILayout.Label("Yaw +/-");
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Pitch +/-", GUILayout.Width(60));
+            if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
+                sIncPitch = "0.0";
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Roll +/-", GUILayout.Width(60));
+            if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
+                sIncRoll = "0.0";
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Yaw +/-", GUILayout.Width(60));
+            if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
+                sIncYaw = "0.0";
+            GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
             GUILayout.BeginVertical();
             GUILayout.Label(eulerAngles.x.ToString("0.00"), dataStyle);
             GUILayout.Label(eulerAngles.y.ToString("0.00"), dataStyle);
             GUILayout.Label(eulerAngles.z.ToString("0.00"), dataStyle);
-            sPitch = GUILayout.TextField(sPitch, 10);
-            sRoll = GUILayout.TextField(sRoll, 10);
-            sYaw = GUILayout.TextField(sYaw, 10);
-
+            sIncPitch = GUILayout.TextField(sIncPitch, 7, GetDataStyle(sIncPitch));
+            sIncRoll = GUILayout.TextField(sIncRoll, 7, GetDataStyle(sIncRoll));
+            sIncYaw = GUILayout.TextField(sIncYaw, 7, GetDataStyle(sIncYaw));
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
 
             GUI.DragWindow();
+        }
+
+        private GUIStyle GetDataStyle(String str)
+        {
+            float temp;
+            if (Single.TryParse(str, out temp))
+            {
+                return dataStyle;
+            }
+            return badDataStyle;
         }
 
         private float GetSingleOrZero(String str)
@@ -180,6 +208,18 @@ namespace PartAngleDisplay
             dataStyle.fontStyle = FontStyle.Normal;
             dataStyle.alignment = TextAnchor.MiddleRight;
             dataStyle.stretchWidth = true;
+
+            badDataStyle = new GUIStyle(HighLogic.Skin.label);
+            badDataStyle.fontStyle = FontStyle.Normal;
+            badDataStyle.alignment = TextAnchor.MiddleRight;
+            badDataStyle.stretchWidth = true;
+            badDataStyle.normal.textColor = new Color(1.0f, 0.5f, 0.5f);
+            badDataStyle.focused.textColor = new Color(1.0f, 0.5f, 0.5f);
+
+            buttonStyle = new GUIStyle(HighLogic.Skin.button);
+            badDataStyle.fixedWidth = 20;
+            buttonStyle.padding = new RectOffset(0, 0, 0, 0);
+            buttonStyle.border = new RectOffset(4, 0, 0, 0);
         }
 
 #if false
