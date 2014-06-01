@@ -11,6 +11,10 @@ It isn't "nice" or particularly intuitive but I am releasing it as is just in ca
 
 Change Log
 ==========
+28/05/2014 09:48 GMT   Added buttons to zero the increment fields
+                       Rearranged window to avoid things moving when entering values
+                       First release version 0.1.0.1
+
 23/05/2014 14:06 GMT   Fixed editable fields to work better
 
 20/05/2014 23:17 GMT   Removed some unused code and logging
