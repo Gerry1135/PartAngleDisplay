@@ -13,6 +13,9 @@ It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bi
 
 Change Log
 ==========
+    10/07/2014 21:52 GMT   Now uses configured key bindings for part rotation rather than hardwired WASDQE
+                           Updated version to 0.2.0.2
+
     10/07/2014 20:53 GMT   Fixed roll and yaw rotation axes in SPH
                            Updated version to 0.2.0.1
                            Fixed version in title bar

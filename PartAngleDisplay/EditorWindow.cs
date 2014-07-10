@@ -78,7 +78,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.0.1)";
+            WindowTitle = "Part Angle Display (0.2.0.2)";
             WindowRect = new Rect(300, 200, 200, 50);
 
             Visible = false;
@@ -140,27 +140,27 @@ namespace PartAngleDisplay
                         incAngles.z = GetSingleOrZero(sIncYaw);
                         editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
                     }
-                    else if (Input.GetKeyDown(KeyCode.W))
+                    else if (IsKeyBindingDown(GameSettings.Editor_pitchDown))
                     {
                         ApplyIncrements(GetSingleOrZero(sIncPitch) - 90f, 0f, 0f);
                     }
-                    else if (Input.GetKeyDown(KeyCode.S))
+                    else if (IsKeyBindingDown(GameSettings.Editor_pitchUp))
                     {
                         ApplyIncrements(90f - GetSingleOrZero(sIncPitch), 0f, 0f);
                     }
-                    else if (Input.GetKeyDown(KeyCode.A))
+                    else if (IsKeyBindingDown(GameSettings.Editor_yawLeft))
                     {
                         ApplyIncrements(0f, GetSingleOrZero(sIncYaw) - 90f, 0f);
                     }
-                    else if (Input.GetKeyDown(KeyCode.D))
+                    else if (IsKeyBindingDown(GameSettings.Editor_yawRight))
                     {
                         ApplyIncrements(0f, 90f - GetSingleOrZero(sIncYaw), 0f);
                     }
-                    else if (Input.GetKeyDown(KeyCode.Q))
+                    else if (IsKeyBindingDown(GameSettings.Editor_rollLeft))
                     {
                         ApplyIncrements(0f, 0f, GetSingleOrZero(sIncRoll) - 90f);
                     }
-                    else if (Input.GetKeyDown(KeyCode.E))
+                    else if (IsKeyBindingDown(GameSettings.Editor_rollRight))
                     {
                         ApplyIncrements(0f, 0f, 90f - GetSingleOrZero(sIncRoll));
                     }
@@ -192,6 +192,11 @@ namespace PartAngleDisplay
                 //Trace("quaternion = " + qRoll.ToString());
                 editor.partRotation = qRoll * editor.partRotation;
             }
+        }
+
+        private bool IsKeyBindingDown(KeyBinding keybind)
+        {
+            return Input.GetKeyDown(keybind.primary) || Input.GetKeyDown(keybind.secondary);
         }
 
         private void DoPostDraw()
