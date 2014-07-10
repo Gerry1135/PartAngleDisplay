@@ -110,25 +110,86 @@ namespace PartAngleDisplay
             //check for the various alt/mod etc keypresses
             bool altKeyPressed = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr);
 
-            // ALT+P: The only key shortcut
-            // When a part is selected we apply the angle increments to the part's current rotation
-            // When no part is selected we toggle the visible state of the window
-            if (altKeyPressed && Input.GetKeyDown(KeyCode.P))
+            // When no part is selected we toggle the visible state of the window with ALT+P
+            if (!editor.PartSelected)
             {
-                if (editor.PartSelected)
-                {
-                    //Trace("Applying part rotation");
-                    Vector3 incAngles;
-                    incAngles.x = GetSingleOrZero(sIncPitch);
-                    incAngles.y = GetSingleOrZero(sIncRoll);
-                    incAngles.z = GetSingleOrZero(sIncYaw);
-                    editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
-                }
-                else
+                if (altKeyPressed && Input.GetKeyDown(KeyCode.P))
                 {
                     // Toggle the visibility
                     Visible = !Visible;
                 }
+            }
+            else
+            {
+                // Otherwise we apply the relevant angle increments depending on which key was pressed
+                // ALT+P: Applies all 3 axes
+                // ALT+W: Applies +pitch
+                // ALT+S: Applies -pitch
+                // ALT+A: Applies +yaw
+                // ALT+D: Applies -yaw
+                // ALT+Q: Applies +roll
+                // ALT+E: Applies -roll
+                if (altKeyPressed)
+                {
+                    if (Input.GetKeyDown(KeyCode.P))
+                    {
+                        //Trace("Applying part rotation");
+                        Vector3 incAngles;
+                        incAngles.x = GetSingleOrZero(sIncPitch);
+                        incAngles.y = GetSingleOrZero(sIncRoll);
+                        incAngles.z = GetSingleOrZero(sIncYaw);
+                        editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.W))
+                    {
+                        ApplyIncrements(GetSingleOrZero(sIncPitch) - 90f, 0f, 0f);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.S))
+                    {
+                        ApplyIncrements(90f - GetSingleOrZero(sIncPitch), 0f, 0f);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.A))
+                    {
+                        ApplyIncrements(0f, GetSingleOrZero(sIncYaw) - 90f, 0f);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.D))
+                    {
+                        ApplyIncrements(0f, 90f - GetSingleOrZero(sIncYaw), 0f);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.Q))
+                    {
+                        ApplyIncrements(0f, 0f, GetSingleOrZero(sIncRoll) - 90f);
+                    }
+                    else if (Input.GetKeyDown(KeyCode.E))
+                    {
+                        ApplyIncrements(0f, 0f, 90f - GetSingleOrZero(sIncRoll));
+                    }
+                }
+            }
+        }
+
+        private void ApplyIncrements(float incPitch, float incYaw, float incRoll)
+        {
+            if (incPitch != 0f)
+            {
+                //Trace("Applying pitch of " + incPitch);
+                Quaternion qPitch = Quaternion.AngleAxis(incPitch, Vector3.left);
+                //Trace("quaternion = " + qPitch.ToString());
+                editor.partRotation = qPitch * editor.partRotation;
+            }
+            if (incYaw != 0f)
+            {
+                //Trace("Applying yaw of " + incYaw);
+                Quaternion qYaw = Quaternion.AngleAxis(incYaw, Vector3.forward);
+                //Trace("quaternion = " + qYaw.ToString());
+                editor.partRotation = qYaw * editor.partRotation;
+            }
+            if (incRoll != 0f)
+            {
+                //Trace("Applying roll of " + incRoll);
+                Quaternion qRoll = Quaternion.AngleAxis(incRoll, Vector3.up);
+                //Trace("quaternion = " + qRoll.ToString());
+                editor.partRotation = qRoll * editor.partRotation;
             }
         }
 
@@ -222,7 +283,7 @@ namespace PartAngleDisplay
             buttonStyle.border = new RectOffset(4, 0, 0, 0);
         }
 
-#if false
+#if true
         private void Trace(String message)
         {
             print(message);
