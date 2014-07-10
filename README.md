@@ -13,8 +13,12 @@ It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bi
 
 Change Log
 ==========
+    10/07/2014 20:53 GMT   Fixed roll and yaw rotation axes in SPH
+                           Updated version to 0.2.0.1
+                           Fixed version in title bar
+
     10/07/2014 12:12 GMT   Added handling of ALT-WASDQE to rotate by the entered amounts in the respective axes
-                           Upadted version to 0.2.0.0
+                           Updated version to 0.2.0.0
 
     28/05/2014 09:48 GMT   Added buttons to zero the increment fields
                            Rearranged window to avoid things moving when entering values
