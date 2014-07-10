@@ -78,7 +78,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.1.0.1)";
+            WindowTitle = "Part Angle Display (0.2.0.1)";
             WindowRect = new Rect(300, 200, 200, 50);
 
             Visible = false;
@@ -122,7 +122,7 @@ namespace PartAngleDisplay
             else
             {
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
-                // ALT+P: Applies all 3 axes
+                // ALT+P: Applies all 3 axes using Euler angles
                 // ALT+W: Applies +pitch
                 // ALT+S: Applies -pitch
                 // ALT+A: Applies +yaw
@@ -170,6 +170,7 @@ namespace PartAngleDisplay
 
         private void ApplyIncrements(float incPitch, float incYaw, float incRoll)
         {
+            bool isVAB = editor.editorType == EditorLogic.EditorMode.VAB;
             if (incPitch != 0f)
             {
                 //Trace("Applying pitch of " + incPitch);
@@ -180,14 +181,14 @@ namespace PartAngleDisplay
             if (incYaw != 0f)
             {
                 //Trace("Applying yaw of " + incYaw);
-                Quaternion qYaw = Quaternion.AngleAxis(incYaw, Vector3.forward);
+                Quaternion qYaw = Quaternion.AngleAxis(incYaw, isVAB ? Vector3.forward : Vector3.down);
                 //Trace("quaternion = " + qYaw.ToString());
                 editor.partRotation = qYaw * editor.partRotation;
             }
             if (incRoll != 0f)
             {
                 //Trace("Applying roll of " + incRoll);
-                Quaternion qRoll = Quaternion.AngleAxis(incRoll, Vector3.up);
+                Quaternion qRoll = Quaternion.AngleAxis(incRoll, isVAB ? Vector3.up : Vector3.forward);
                 //Trace("quaternion = " + qRoll.ToString());
                 editor.partRotation = qRoll * editor.partRotation;
             }
