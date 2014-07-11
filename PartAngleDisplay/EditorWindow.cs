@@ -46,6 +46,11 @@ namespace PartAngleDisplay
         String sIncRoll = "0.0";
         String sIncYaw = "0.0";
 
+        String sPlainRotate = "90.0";
+        String sShiftRotate = "5.0";
+
+        static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
+
         private Boolean _Visible = false;
         public Boolean Visible
         {
@@ -108,9 +113,14 @@ namespace PartAngleDisplay
             sYaw = eulerAngles.z.ToString("0.00");
 
             //check for the various alt/mod etc keypresses
-            bool altKeyPressed = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr);
+            //bool altKeyPressed = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr);
+            // Actually read the configured modifier key binding
+            bool altKeyPressed = GameSettings.MODIFIER_KEY.GetKeyDown();
+            bool shiftKeyPressed = Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
 
-            // When no part is selected we toggle the visible state of the window with ALT+P
+            // When no part is selected:
+            // ALT-P            toggle the visible state of the window
+            // F/Shift-F/Alt-F  decrease/increase/reset shift-rotation angle
             if (!editor.PartSelected)
             {
                 if (altKeyPressed && Input.GetKeyDown(KeyCode.P))
@@ -140,27 +150,27 @@ namespace PartAngleDisplay
                         incAngles.z = GetSingleOrZero(sIncYaw);
                         editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
                     }
-                    else if (IsKeyBindingDown(GameSettings.Editor_pitchDown))
+                    else if (GameSettings.Editor_pitchDown.GetKeyDown())
                     {
                         ApplyIncrements(GetSingleOrZero(sIncPitch) - 90f, 0f, 0f);
                     }
-                    else if (IsKeyBindingDown(GameSettings.Editor_pitchUp))
+                    else if (GameSettings.Editor_pitchUp.GetKeyDown())
                     {
                         ApplyIncrements(90f - GetSingleOrZero(sIncPitch), 0f, 0f);
                     }
-                    else if (IsKeyBindingDown(GameSettings.Editor_yawLeft))
+                    else if (GameSettings.Editor_yawLeft.GetKeyDown())
                     {
                         ApplyIncrements(0f, GetSingleOrZero(sIncYaw) - 90f, 0f);
                     }
-                    else if (IsKeyBindingDown(GameSettings.Editor_yawRight))
+                    else if (GameSettings.Editor_yawRight.GetKeyDown())
                     {
                         ApplyIncrements(0f, 90f - GetSingleOrZero(sIncYaw), 0f);
                     }
-                    else if (IsKeyBindingDown(GameSettings.Editor_rollLeft))
+                    else if (GameSettings.Editor_rollLeft.GetKeyDown())
                     {
                         ApplyIncrements(0f, 0f, GetSingleOrZero(sIncRoll) - 90f);
                     }
-                    else if (IsKeyBindingDown(GameSettings.Editor_rollRight))
+                    else if (GameSettings.Editor_rollRight.GetKeyDown())
                     {
                         ApplyIncrements(0f, 0f, 90f - GetSingleOrZero(sIncRoll));
                     }
@@ -194,11 +204,6 @@ namespace PartAngleDisplay
             }
         }
 
-        private bool IsKeyBindingDown(KeyBinding keybind)
-        {
-            return Input.GetKeyDown(keybind.primary) || Input.GetKeyDown(keybind.secondary);
-        }
-
         private void DoPostDraw()
         {
             if (Visible)
@@ -228,6 +233,20 @@ namespace PartAngleDisplay
             if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
                 sIncYaw = "0.0";
             GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Rotation", GUILayout.Width(60));
+            if (GUILayout.Button("<", buttonStyle, GUILayout.Width(20)))
+                sPlainRotate = IncreaseRotate(sPlainRotate);
+            if (GUILayout.Button(">", buttonStyle, GUILayout.Width(20)))
+                sPlainRotate = DecreaseRotate(sPlainRotate);
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Fine Rotation", GUILayout.Width(60));
+            if (GUILayout.Button("<", buttonStyle, GUILayout.Width(20)))
+                sShiftRotate = IncreaseRotate(sShiftRotate);
+            if (GUILayout.Button(">", buttonStyle, GUILayout.Width(20)))
+                sShiftRotate = DecreaseRotate(sShiftRotate);
+            GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
             GUILayout.BeginVertical();
@@ -237,11 +256,41 @@ namespace PartAngleDisplay
             sIncPitch = GUILayout.TextField(sIncPitch, 7, GetDataStyle(sIncPitch));
             sIncRoll = GUILayout.TextField(sIncRoll, 7, GetDataStyle(sIncRoll));
             sIncYaw = GUILayout.TextField(sIncYaw, 7, GetDataStyle(sIncYaw));
+            sShiftRotate = GUILayout.TextField(sShiftRotate, 7, GetDataStyle(sShiftRotate));
+            sPlainRotate = GUILayout.TextField(sPlainRotate, 7, GetDataStyle(sPlainRotate));
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
 
             GUI.DragWindow();
+        }
+
+        private String IncreaseRotate(String sAngle)
+        {
+            // Look for the first item in the cycle larger than the value
+            float angle = GetSingleOrZero(sAngle);
+            for (int i = 0; i < angleCycle.Length; i++)
+            {
+                if (angleCycle[i] > angle)
+                    return angleCycle[i].ToString("0.00");
+            }
+
+            // Nothing larger so go back to the start
+            return angleCycle[0].ToString("0.00");
+        }
+
+        private String DecreaseRotate(String sAngle)
+        {
+            // Look for the last item in the cycle smaller than the value
+            float angle = GetSingleOrZero(sAngle);
+            for (int i = angleCycle.Length - 1; i >= 0; i--)
+            {
+                if (angleCycle[i] < angle)
+                    return angleCycle[i].ToString("0.00");
+            }
+
+            // Nothing larger so go back to the start
+            return angleCycle[angleCycle.Length - 1].ToString("0.00");
         }
 
         private GUIStyle GetDataStyle(String str)
@@ -289,7 +338,7 @@ namespace PartAngleDisplay
             buttonStyle.border = new RectOffset(4, 0, 0, 0);
         }
 
-#if true
+#if false
         private void Trace(String message)
         {
             print(message);
