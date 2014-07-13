@@ -9,10 +9,16 @@ It originally used a single hotkey (Alt-P as it doesn't clash with any of the mo
 
 Version 0.2 introduced a new way use the plugin.  The original Alt-P hotkey still works the same way but it also now overrides the handling of ALT-WASDQE (the standard part rotation controls with ALT held down) in the stock game (they do the same as the unmodified key, rotate by 90 degrees) to instead rotate by whatever angle increment is entered into the respective field in the dialog.  This allows you to set increment values to 1 (or 0.1 or even 0.01) and then have seamless, accurate rotation of parts.
 
+Version 0.2.1 fixes the handling of the standard pitch keys and makes the angle increments they use configurable.  W/S and Shift-W/S no longer go in opposite directions.  The < and > buttons can be used to cycle the angle setting through 120, 90, 72, 60, 45, 30, 15, 10, 5, 1, 0.1 and 0.01 degrees.  The F key also adjusts the "Fine" angle control (F to cycle down, Shift-F to cycle up and Alt-F to reset to 5).
+
 It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bit confusing.  I am releasing it as is just in case anyone else finds it useful or wants to develop it further. There are various issues with it (e.g. the editable fields behave quite strange) but it works for what I designed it for (setting the pitch angle of radially attached girders to 2 decimal places).
 
 Change Log
 ==========
+    13/07/2014 12:29 GMT   Now totally overrides part rotation hotkeys
+                           Allows changing of the default and fine rotation increments
+                           Updated version to 0.2.1.0
+
     10/07/2014 21:52 GMT   Now uses configured key bindings for part rotation rather than hardwired WASDQE
                            Updated version to 0.2.0.2
 

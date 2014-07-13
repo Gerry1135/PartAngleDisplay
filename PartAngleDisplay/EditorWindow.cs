@@ -35,6 +35,7 @@ namespace PartAngleDisplay
         EditorLogic editor;
         GUIStyle windowStyle;
         GUIStyle areaStyle;
+        GUIStyle labelStyle;
         GUIStyle dataStyle;
         GUIStyle badDataStyle;
         GUIStyle buttonStyle;
@@ -83,7 +84,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.0.2)";
+            WindowTitle = "Part Angle Display (0.2.1.0)";
             WindowRect = new Rect(300, 200, 200, 50);
 
             Visible = false;
@@ -115,12 +116,24 @@ namespace PartAngleDisplay
             //check for the various alt/mod etc keypresses
             //bool altKeyPressed = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr);
             // Actually read the configured modifier key binding
-            bool altKeyPressed = GameSettings.MODIFIER_KEY.GetKeyDown();
-            bool shiftKeyPressed = Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift);
+            bool altKeyPressed = GameSettings.MODIFIER_KEY.GetKey();
+            bool shiftKeyPressed = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            //Trace("alt = " + altKeyPressed + "  shift = " + shiftKeyPressed);
+
+            // Key handling
+            // F/Shift-F/Alt-F  decrease/increase/reset shift-rotation angle
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                if (altKeyPressed)
+                    sShiftRotate = "5.0";
+                else if (shiftKeyPressed)
+                    sShiftRotate = IncreaseRotate(sShiftRotate);
+                else
+                    sShiftRotate = DecreaseRotate(sShiftRotate);
+            }
 
             // When no part is selected:
             // ALT-P            toggle the visible state of the window
-            // F/Shift-F/Alt-F  decrease/increase/reset shift-rotation angle
             if (!editor.PartSelected)
             {
                 if (altKeyPressed && Input.GetKeyDown(KeyCode.P))
@@ -133,48 +146,48 @@ namespace PartAngleDisplay
             {
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
                 // ALT+P: Applies all 3 axes using Euler angles
-                // ALT+W: Applies +pitch
-                // ALT+S: Applies -pitch
-                // ALT+A: Applies +yaw
-                // ALT+D: Applies -yaw
-                // ALT+Q: Applies +roll
-                // ALT+E: Applies -roll
-                if (altKeyPressed)
+                if (altKeyPressed && Input.GetKeyDown(KeyCode.P))
                 {
-                    if (Input.GetKeyDown(KeyCode.P))
-                    {
-                        //Trace("Applying part rotation");
-                        Vector3 incAngles;
-                        incAngles.x = GetSingleOrZero(sIncPitch);
-                        incAngles.y = GetSingleOrZero(sIncRoll);
-                        incAngles.z = GetSingleOrZero(sIncYaw);
-                        editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
-                    }
-                    else if (GameSettings.Editor_pitchDown.GetKeyDown())
-                    {
-                        ApplyIncrements(GetSingleOrZero(sIncPitch) - 90f, 0f, 0f);
-                    }
-                    else if (GameSettings.Editor_pitchUp.GetKeyDown())
-                    {
-                        ApplyIncrements(90f - GetSingleOrZero(sIncPitch), 0f, 0f);
-                    }
-                    else if (GameSettings.Editor_yawLeft.GetKeyDown())
-                    {
-                        ApplyIncrements(0f, GetSingleOrZero(sIncYaw) - 90f, 0f);
-                    }
-                    else if (GameSettings.Editor_yawRight.GetKeyDown())
-                    {
-                        ApplyIncrements(0f, 90f - GetSingleOrZero(sIncYaw), 0f);
-                    }
-                    else if (GameSettings.Editor_rollLeft.GetKeyDown())
-                    {
-                        ApplyIncrements(0f, 0f, GetSingleOrZero(sIncRoll) - 90f);
-                    }
-                    else if (GameSettings.Editor_rollRight.GetKeyDown())
-                    {
-                        ApplyIncrements(0f, 0f, 90f - GetSingleOrZero(sIncRoll));
-                    }
+                    //Trace("Applying part rotation");
+                    Vector3 incAngles;
+                    incAngles.x = GetSingleOrZero(sIncPitch);
+                    incAngles.y = GetSingleOrZero(sIncRoll);
+                    incAngles.z = GetSingleOrZero(sIncYaw);
+                    editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
                 }
+
+                // WASDQE           Undo core rotation of 90 and apply our rotation of sPlainRotate
+                // Shift-WASDQE     Undo core rotation of 5 and apply our rotation of sShiftRotate
+                // Mod-WASDQE       Undo core rotation of 90 and apply our rotation of sIncPitch/Yaw/Roll
+                float incPitch = 0f;
+                float incYaw = 0f;
+                float incRoll = 0f;
+                if (GameSettings.Editor_pitchDown.GetKeyDown())
+                {
+                    incPitch = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : -90f - (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                }
+                else if (GameSettings.Editor_pitchUp.GetKeyDown())
+                {
+                    incPitch = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : 90f + (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                }
+                else if (GameSettings.Editor_yawLeft.GetKeyDown())
+                {
+                    incYaw = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                }
+                else if (GameSettings.Editor_yawRight.GetKeyDown())
+                {
+                    incYaw = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : 90f - (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                }
+                else if (GameSettings.Editor_rollLeft.GetKeyDown())
+                {
+                    incRoll = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                }
+                else if (GameSettings.Editor_rollRight.GetKeyDown())
+                {
+                    incRoll = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : 90f - (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                }
+
+                ApplyIncrements(incPitch, incYaw, incRoll);
             }
         }
 
@@ -215,49 +228,52 @@ namespace PartAngleDisplay
             GUILayout.BeginHorizontal(areaStyle);
 
             GUILayout.BeginVertical();
-            GUILayout.Label("Pitch");
-            GUILayout.Label("Roll");
-            GUILayout.Label("Yaw");
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Pitch +/-", GUILayout.Width(60));
+            GUILayout.Label("Pitch", labelStyle);
+            GUILayout.Label(eulerAngles.x.ToString("0.00"), dataStyle, GUILayout.Width(40));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Roll", labelStyle);
+            GUILayout.Label(eulerAngles.y.ToString("0.00"), dataStyle, GUILayout.Width(40));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Yaw", labelStyle);
+            GUILayout.Label(eulerAngles.z.ToString("0.00"), dataStyle, GUILayout.Width(40));
+            GUILayout.EndHorizontal();
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Pitch +/-", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
                 sIncPitch = "0.0";
+            sIncPitch = GUILayout.TextField(sIncPitch, 7, GetDataStyle(sIncPitch));
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Roll +/-", GUILayout.Width(60));
+            GUILayout.Label("Roll +/-", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
                 sIncRoll = "0.0";
+            sIncRoll = GUILayout.TextField(sIncRoll, 7, GetDataStyle(sIncRoll));
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Yaw +/-", GUILayout.Width(60));
+            GUILayout.Label("Yaw +/-", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
                 sIncYaw = "0.0";
+            sIncYaw = GUILayout.TextField(sIncYaw, 7, GetDataStyle(sIncYaw));
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Rotation", GUILayout.Width(60));
+            GUILayout.Label("Rotation", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("<", buttonStyle, GUILayout.Width(20)))
                 sPlainRotate = IncreaseRotate(sPlainRotate);
             if (GUILayout.Button(">", buttonStyle, GUILayout.Width(20)))
                 sPlainRotate = DecreaseRotate(sPlainRotate);
+            sPlainRotate = GUILayout.TextField(sPlainRotate, 7, GetDataStyle(sPlainRotate));
             GUILayout.EndHorizontal();
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Fine Rotation", GUILayout.Width(60));
+            GUILayout.Label("Fine", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("<", buttonStyle, GUILayout.Width(20)))
                 sShiftRotate = IncreaseRotate(sShiftRotate);
             if (GUILayout.Button(">", buttonStyle, GUILayout.Width(20)))
                 sShiftRotate = DecreaseRotate(sShiftRotate);
-            GUILayout.EndHorizontal();
-            GUILayout.EndVertical();
-
-            GUILayout.BeginVertical();
-            GUILayout.Label(eulerAngles.x.ToString("0.00"), dataStyle);
-            GUILayout.Label(eulerAngles.y.ToString("0.00"), dataStyle);
-            GUILayout.Label(eulerAngles.z.ToString("0.00"), dataStyle);
-            sIncPitch = GUILayout.TextField(sIncPitch, 7, GetDataStyle(sIncPitch));
-            sIncRoll = GUILayout.TextField(sIncRoll, 7, GetDataStyle(sIncRoll));
-            sIncYaw = GUILayout.TextField(sIncYaw, 7, GetDataStyle(sIncYaw));
             sShiftRotate = GUILayout.TextField(sShiftRotate, 7, GetDataStyle(sShiftRotate));
-            sPlainRotate = GUILayout.TextField(sPlainRotate, 7, GetDataStyle(sPlainRotate));
+            GUILayout.EndHorizontal();
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();
@@ -318,12 +334,21 @@ namespace PartAngleDisplay
             windowStyle = new GUIStyle(HighLogic.Skin.window);
 
             areaStyle = new GUIStyle(HighLogic.Skin.textArea);
-            areaStyle.active = areaStyle.hover = areaStyle.normal;
+            //areaStyle.active = areaStyle.hover = areaStyle.normal;
+
+            labelStyle = new GUIStyle(HighLogic.Skin.label);
+            labelStyle.fontStyle = FontStyle.Normal;
+            labelStyle.alignment = TextAnchor.MiddleLeft;
+            labelStyle.stretchWidth = true;
+            labelStyle.padding = new RectOffset(0, 0, 0, 0);
+            labelStyle.margin = new RectOffset(0, 0, 1, 1);
 
             dataStyle = new GUIStyle(HighLogic.Skin.label);
             dataStyle.fontStyle = FontStyle.Normal;
             dataStyle.alignment = TextAnchor.MiddleRight;
             dataStyle.stretchWidth = true;
+            dataStyle.padding = new RectOffset(0, 0, 0, 0);
+            dataStyle.margin = new RectOffset(0, 0, 1, 1);
 
             badDataStyle = new GUIStyle(HighLogic.Skin.label);
             badDataStyle.fontStyle = FontStyle.Normal;
@@ -331,11 +356,14 @@ namespace PartAngleDisplay
             badDataStyle.stretchWidth = true;
             badDataStyle.normal.textColor = new Color(1.0f, 0.5f, 0.5f);
             badDataStyle.focused.textColor = new Color(1.0f, 0.5f, 0.5f);
+            badDataStyle.padding = new RectOffset(0, 0, 0, 0);
+            badDataStyle.margin = new RectOffset(0, 0, 1, 1);
 
             buttonStyle = new GUIStyle(HighLogic.Skin.button);
-            badDataStyle.fixedWidth = 20;
+            buttonStyle.fixedWidth = 20;
             buttonStyle.padding = new RectOffset(0, 0, 0, 0);
-            buttonStyle.border = new RectOffset(4, 0, 0, 0);
+            buttonStyle.margin = new RectOffset(0, 0, 1, 1);
+            buttonStyle.border = new RectOffset(2, 0, 0, 0);
         }
 
 #if false
