@@ -49,6 +49,7 @@ namespace PartAngleDisplay
 
         String sPlainRotate = "90.0";
         String sShiftRotate = "5.0";
+        bool relativeRotate = false;
 
         static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
 
@@ -84,7 +85,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.1.0)";
+            WindowTitle = "Part Angle Display (0.2.2.0)";
             WindowRect = new Rect(300, 200, 200, 50);
 
             Visible = false;
@@ -162,32 +163,84 @@ namespace PartAngleDisplay
                 float incPitch = 0f;
                 float incYaw = 0f;
                 float incRoll = 0f;
+                float relPitch = 0f;
+                float relYaw = 0f;
+                float relRoll = 0f;
                 if (GameSettings.Editor_pitchDown.GetKeyDown())
                 {
-                    incPitch = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : -90f - (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                    if (relativeRotate)
+                    {
+                        incPitch = shiftKeyPressed ? 5f : -90f;
+                        relPitch = shiftKeyPressed ? -GetSingleOrZero(sShiftRotate) : -(altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                    }
+                    else
+                    {
+                        incPitch = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : -90f - (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                    }
                 }
                 else if (GameSettings.Editor_pitchUp.GetKeyDown())
                 {
-                    incPitch = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : 90f + (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                    if (relativeRotate)
+                    {
+                        incPitch = shiftKeyPressed ? -5f : 90f;
+                        relPitch = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) : (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                    }
+                    else
+                    {
+                        incPitch = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : 90f + (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                    }
                 }
                 else if (GameSettings.Editor_yawLeft.GetKeyDown())
                 {
-                    incYaw = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                    if (relativeRotate)
+                    {
+                        incYaw = shiftKeyPressed ? -5f : -90f;
+                        relYaw = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) : (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                    }
+                    else
+                    {
+                        incYaw = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                    }
                 }
                 else if (GameSettings.Editor_yawRight.GetKeyDown())
                 {
-                    incYaw = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : 90f - (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                    if (relativeRotate)
+                    {
+                        incYaw = shiftKeyPressed ? 5f : 90f;
+                        relYaw = shiftKeyPressed ? -GetSingleOrZero(sShiftRotate) : -(altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                    }
+                    else
+                    {
+                        incYaw = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : 90f - (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                    }
                 }
                 else if (GameSettings.Editor_rollLeft.GetKeyDown())
                 {
-                    incRoll = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                    if (relativeRotate)
+                    {
+                        incRoll = shiftKeyPressed ? -5f : -90f;
+                        relRoll = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) : (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                    }
+                    else
+                    {
+                        incRoll = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                    }
                 }
                 else if (GameSettings.Editor_rollRight.GetKeyDown())
                 {
-                    incRoll = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : 90f - (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                    if (relativeRotate)
+                    {
+                        incRoll = shiftKeyPressed ? 5f : 90f;
+                        relRoll = shiftKeyPressed ? -GetSingleOrZero(sShiftRotate) : -(altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                    }
+                    else
+                    {
+                        incRoll = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : 90f - (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                    }
                 }
 
                 ApplyIncrements(incPitch, incYaw, incRoll);
+                ApplyRelativeIncrements(relPitch, relYaw, relRoll);
             }
         }
 
@@ -212,6 +265,37 @@ namespace PartAngleDisplay
             {
                 //Trace("Applying roll of " + incRoll);
                 Quaternion qRoll = Quaternion.AngleAxis(incRoll, isVAB ? Vector3.up : Vector3.forward);
+                //Trace("quaternion = " + qRoll.ToString());
+                editor.partRotation = qRoll * editor.partRotation;
+            }
+        }
+
+        private void ApplyRelativeIncrements(float relPitch, float relYaw, float relRoll)
+        {
+            Part part = EditorLogic.SelectedPart;
+            if (part == null)
+                return;
+
+            bool isVAB = editor.editorType == EditorLogic.EditorMode.VAB;
+
+            if (relPitch != 0f)
+            {
+                //Trace("Applying rel pitch of " + relPitch);
+                Quaternion qPitch = Quaternion.AngleAxis(-relPitch, part.transform.right);
+                //Trace("quaternion = " + qPitch.ToString());
+                editor.partRotation = qPitch * editor.partRotation;
+            }
+            if (relYaw != 0f)
+            {
+                //Trace("Applying rel yaw of " + relYaw);
+                Quaternion qYaw = Quaternion.AngleAxis(relYaw, part.transform.forward);
+                //Trace("quaternion = " + qYaw.ToString());
+                editor.partRotation = qYaw * editor.partRotation;
+            }
+            if (relRoll != 0f)
+            {
+                //Trace("Applying roll of " + relRoll);
+                Quaternion qRoll = Quaternion.AngleAxis(relRoll, part.transform.up);
                 //Trace("quaternion = " + qRoll.ToString());
                 editor.partRotation = qRoll * editor.partRotation;
             }
@@ -274,6 +358,12 @@ namespace PartAngleDisplay
                 sShiftRotate = DecreaseRotate(sShiftRotate);
             sShiftRotate = GUILayout.TextField(sShiftRotate, 7, GetDataStyle(sShiftRotate));
             GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Part-relative", labelStyle);
+            relativeRotate = GUILayout.Toggle(relativeRotate, "", buttonStyle);
+            GUILayout.EndHorizontal();
+            
             GUILayout.EndVertical();
 
             GUILayout.EndHorizontal();

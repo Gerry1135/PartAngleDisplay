@@ -11,10 +11,15 @@ Version 0.2 introduced a new way use the plugin.  The original Alt-P hotkey stil
 
 Version 0.2.1 fixes the handling of the standard pitch keys and makes the angle increments they use configurable.  W/S and Shift-W/S no longer go in opposite directions.  The < and > buttons can be used to cycle the angle setting through 120, 90, 72, 60, 45, 30, 15, 10, 5, 1, 0.1 and 0.01 degrees.  The F key also adjusts the "Fine" angle control (F to cycle down, Shift-F to cycle up and Alt-F to reset to 5).
 
+Version 0.2.2 introduces "Part-relative" mode.  This changes the rotation keys to act around the axes of the currently selected part rather than the usual fixed axes.  E.g. if you rotate a Mk 1 plane cockpit to an odd angle and then switch to "Part-relative" and roll using Q and E the part will roll around its own axis.
+
 It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bit confusing.  I am releasing it as is just in case anyone else finds it useful or wants to develop it further. There are various issues with it (e.g. the editable fields behave quite strange) but it works for what I designed it for (setting the pitch angle of radially attached girders to 2 decimal places).
 
 Change Log
 ==========
+    13/07/2014 16:37 GMT   Implemented "Part-relative" mode that changes all part rotation axes to be relative to the selected part
+                           Updated version to 0.2.2.0
+
     13/07/2014 12:29 GMT   Now totally overrides part rotation hotkeys
                            Allows changing of the default and fine rotation increments
                            Updated version to 0.2.1.0
