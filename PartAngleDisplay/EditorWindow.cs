@@ -309,39 +309,44 @@ namespace PartAngleDisplay
 
         private void Window(int windowID)
         {
-            GUILayout.BeginHorizontal(areaStyle);
+            GUILayout.BeginVertical(areaStyle);
 
-            GUILayout.BeginVertical();
             GUILayout.BeginHorizontal();
             GUILayout.Label("Pitch", labelStyle);
             GUILayout.Label(eulerAngles.x.ToString("0.00"), dataStyle, GUILayout.Width(40));
             GUILayout.EndHorizontal();
+            
             GUILayout.BeginHorizontal();
             GUILayout.Label("Roll", labelStyle);
             GUILayout.Label(eulerAngles.y.ToString("0.00"), dataStyle, GUILayout.Width(40));
             GUILayout.EndHorizontal();
+            
             GUILayout.BeginHorizontal();
             GUILayout.Label("Yaw", labelStyle);
             GUILayout.Label(eulerAngles.z.ToString("0.00"), dataStyle, GUILayout.Width(40));
             GUILayout.EndHorizontal();
+            
             GUILayout.BeginHorizontal();
             GUILayout.Label("Pitch +/-", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
                 sIncPitch = "0.0";
             sIncPitch = GUILayout.TextField(sIncPitch, 7, GetDataStyle(sIncPitch));
             GUILayout.EndHorizontal();
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("Roll +/-", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
                 sIncRoll = "0.0";
             sIncRoll = GUILayout.TextField(sIncRoll, 7, GetDataStyle(sIncRoll));
             GUILayout.EndHorizontal();
+            
             GUILayout.BeginHorizontal();
             GUILayout.Label("Yaw +/-", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("x", buttonStyle, GUILayout.Width(20)))
                 sIncYaw = "0.0";
             sIncYaw = GUILayout.TextField(sIncYaw, 7, GetDataStyle(sIncYaw));
             GUILayout.EndHorizontal();
+            
             GUILayout.BeginHorizontal();
             GUILayout.Label("Rotation", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("<", buttonStyle, GUILayout.Width(20)))
@@ -350,6 +355,7 @@ namespace PartAngleDisplay
                 sPlainRotate = DecreaseRotate(sPlainRotate);
             sPlainRotate = GUILayout.TextField(sPlainRotate, 7, GetDataStyle(sPlainRotate));
             GUILayout.EndHorizontal();
+            
             GUILayout.BeginHorizontal();
             GUILayout.Label("Fine", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("<", buttonStyle, GUILayout.Width(20)))
@@ -365,8 +371,6 @@ namespace PartAngleDisplay
             GUILayout.EndHorizontal();
             
             GUILayout.EndVertical();
-
-            GUILayout.EndHorizontal();
 
             GUI.DragWindow();
         }
@@ -402,21 +406,13 @@ namespace PartAngleDisplay
         private GUIStyle GetDataStyle(String str)
         {
             float temp;
-            if (Single.TryParse(str, out temp))
-            {
-                return dataStyle;
-            }
-            return badDataStyle;
+            return Single.TryParse(str, out temp) ? dataStyle : badDataStyle;
         }
 
         private float GetSingleOrZero(String str)
         {
             float temp;
-            if (Single.TryParse(str, out temp))
-            {
-                return temp;
-            }
-            return 0f;
+            return Single.TryParse(str, out temp) ? temp : 0f;
         }
 
         private void InitStyles()
@@ -424,7 +420,6 @@ namespace PartAngleDisplay
             windowStyle = new GUIStyle(HighLogic.Skin.window);
 
             areaStyle = new GUIStyle(HighLogic.Skin.textArea);
-            //areaStyle.active = areaStyle.hover = areaStyle.normal;
 
             labelStyle = new GUIStyle(HighLogic.Skin.label);
             labelStyle.fontStyle = FontStyle.Normal;
