@@ -85,7 +85,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.2.0)";
+            WindowTitle = "Part Angle Display (0.2.3.0)";
             WindowRect = new Rect(300, 200, 200, 50);
 
             Visible = false;
@@ -309,6 +309,8 @@ namespace PartAngleDisplay
 
         private void Window(int windowID)
         {
+            bool isVAB = editor.editorType == EditorLogic.EditorMode.VAB; 
+
             GUILayout.BeginVertical(areaStyle);
 
             GUILayout.BeginHorizontal();
@@ -318,12 +320,12 @@ namespace PartAngleDisplay
             
             GUILayout.BeginHorizontal();
             GUILayout.Label("Roll", labelStyle);
-            GUILayout.Label(eulerAngles.y.ToString("0.00"), dataStyle, GUILayout.Width(40));
+            GUILayout.Label((isVAB ? eulerAngles.y : eulerAngles.z).ToString("0.00"), dataStyle, GUILayout.Width(40));
             GUILayout.EndHorizontal();
             
             GUILayout.BeginHorizontal();
             GUILayout.Label("Yaw", labelStyle);
-            GUILayout.Label(eulerAngles.z.ToString("0.00"), dataStyle, GUILayout.Width(40));
+            GUILayout.Label((isVAB ? eulerAngles.z : eulerAngles.y).ToString("0.00"), dataStyle, GUILayout.Width(40));
             GUILayout.EndHorizontal();
             
             GUILayout.BeginHorizontal();

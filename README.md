@@ -17,6 +17,10 @@ It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bi
 
 Change Log
 ==========
+    17/07/2014 22:27 GMT   Swapped roll and yaw displays in SPH
+                           Compiled against KSP 0.24
+                           Updated version to 0.2.3.0
+
     13/07/2014 16:37 GMT   Implemented "Part-relative" mode that changes all part rotation axes to be relative to the selected part
                            Updated version to 0.2.2.0
 
