@@ -17,6 +17,9 @@ It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bi
 
 Change Log
 ==========
+	25/07/2014 08:43 GMT   Compiled against KSP 0.24.1
+	                       Updated to version 0.2.4.1
+
 	23/07/2014 22:50 GMT   Fixed build to target correct .NET runtime
 	                       Updated to version 0.2.4.0
 

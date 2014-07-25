@@ -85,7 +85,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.4.0)";
+            WindowTitle = "Part Angle Display (0.2.4.1)";
             WindowRect = new Rect(300, 200, 200, 50);
 
             Visible = false;
