@@ -22,6 +22,7 @@
 
 using System;
 using UnityEngine;
+using KSP.IO;
 
 namespace PartAngleDisplay
 {
@@ -47,11 +48,15 @@ namespace PartAngleDisplay
         String sIncRoll = "0.0";
         String sIncYaw = "0.0";
 
-        String sPlainRotate = "90.0";
-        String sShiftRotate = "5.0";
+        String sIncCoarse = "90.0";
+        String sIncFine = "5.0";
+        bool startVisible = false;
         bool relativeRotate = false;
+        bool absoluteAngles = false;
 
         static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
+
+        const string configFilename = "settings.cfg";
 
         private Boolean _Visible = false;
         public Boolean Visible
@@ -73,8 +78,6 @@ namespace PartAngleDisplay
         public EditorWindow()
         {
             //Trace("EditorWindow.EditorWindow");
-
-            WindowID = Guid.NewGuid().GetHashCode();
         }
 
         public void Awake()
@@ -85,10 +88,99 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.4.1)";
+            WindowTitle = "Part Angle Display (0.2.4.2)";
             WindowRect = new Rect(300, 200, 200, 50);
+            WindowID = Guid.NewGuid().GetHashCode();
+        }
 
-            Visible = false;
+        public void Start()
+        {
+            //Trace("EditorWindow.Start");
+
+            LoadConfig();
+            Visible = startVisible;
+        }
+
+        void OnDestroy()
+        {
+            SaveConfig();
+        }
+
+        // Simple, hardwired config
+        public void LoadConfig()
+        {
+            if (File.Exists<EditorWindow>(configFilename))
+            {
+                string[] lines = File.ReadAllLines<EditorWindow>(configFilename);
+
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    string[] line = lines[i].Split('=');
+                    if (line.Length == 2)
+                    {
+                        string key = line[0].Trim();
+                        string val = line[1].Trim();
+                        if (key == "visible")
+                            SetBool(val, ref startVisible);
+                        else if (key == "incPitch")
+                            sIncPitch = val;
+                        else if (key == "incRoll")
+                            sIncRoll = val;
+                        else if (key == "incYaw")
+                            sIncYaw = val;
+                        else if (key == "incCoarse")
+                            sIncCoarse = val;
+                        else if (key == "incFine")
+                            sIncFine = val;
+                        else if (key == "relRotate")
+                            SetBool(val, ref relativeRotate);
+                        else if (key == "absAngles")
+                            SetBool(val, ref absoluteAngles);
+                        else if (key == "windowPos")
+                        {
+                            string[] vals = val.Split(',');
+                            if (vals.Length == 4)
+                            {
+                                WindowRect.x = Convert.ToSingle(vals[0].Trim());
+                                WindowRect.y = Convert.ToSingle(vals[1].Trim());
+                                WindowRect.width = Convert.ToSingle(vals[2].Trim());
+                                WindowRect.height = Convert.ToSingle(vals[3].Trim());
+                            }
+                            else
+                                Trace("Ignoring invalid rectangle in settings: '" + lines[i] + "'");
+                        }
+                        else
+                            Trace("Ignoring invalid key in settings: '" + lines[i] + "'");
+                    }
+                    else
+                        Trace("Ignoring invalid line in settings: '" + lines[i] + "'");
+                }
+            }
+        }
+
+        public void SaveConfig()
+        {
+            TextWriter file = File.CreateText<EditorWindow>(configFilename);
+
+            file.WriteLine("visible = " + (_Visible ? "true" : "false"));
+            file.WriteLine("incPitch = " + sIncPitch);
+            file.WriteLine("incRoll = " + sIncRoll);
+            file.WriteLine("incYaw = " + sIncYaw);
+            file.WriteLine("incCoarse = " + sIncCoarse);
+            file.WriteLine("incFine = " + sIncFine);
+            file.WriteLine("relRotate = " + (relativeRotate ? "true" : "false"));
+            file.WriteLine("absAngles = " + (absoluteAngles ? "true" : "false"));
+            file.WriteLine("windowPos = {0:f},{1:f},{2:f},{3:f}", WindowRect.x, WindowRect.y, WindowRect.width, WindowRect.height);
+
+            file.Close();
+        }
+
+        void SetBool(string val, ref bool variable)
+        {
+            if (val == "true")
+                variable = true;
+            else if (val == "false")
+                variable = false;
         }
 
         public void Update()
@@ -126,11 +218,11 @@ namespace PartAngleDisplay
             if (Input.GetKeyDown(KeyCode.F))
             {
                 if (altKeyPressed)
-                    sShiftRotate = "5.0";
+                    sIncFine = "5.0";
                 else if (shiftKeyPressed)
-                    sShiftRotate = IncreaseRotate(sShiftRotate);
+                    sIncFine = IncreaseRotate(sIncFine);
                 else
-                    sShiftRotate = DecreaseRotate(sShiftRotate);
+                    sIncFine = DecreaseRotate(sIncFine);
             }
 
             // When no part is selected:
@@ -171,11 +263,11 @@ namespace PartAngleDisplay
                     if (relativeRotate)
                     {
                         incPitch = shiftKeyPressed ? 5f : -90f;
-                        relPitch = shiftKeyPressed ? -GetSingleOrZero(sShiftRotate) : -(altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                        relPitch = shiftKeyPressed ? -GetSingleOrZero(sIncFine) : -(altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incPitch = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : -90f - (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                        incPitch = shiftKeyPressed ? 5f - GetSingleOrZero(sIncFine) : -90f - (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_pitchUp.GetKeyDown())
@@ -183,11 +275,11 @@ namespace PartAngleDisplay
                     if (relativeRotate)
                     {
                         incPitch = shiftKeyPressed ? -5f : 90f;
-                        relPitch = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) : (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                        relPitch = shiftKeyPressed ? GetSingleOrZero(sIncFine) : (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incPitch = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : 90f + (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sPlainRotate));
+                        incPitch = shiftKeyPressed ? GetSingleOrZero(sIncFine) - 5f : 90f + (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_yawLeft.GetKeyDown())
@@ -195,11 +287,11 @@ namespace PartAngleDisplay
                     if (relativeRotate)
                     {
                         incYaw = shiftKeyPressed ? -5f : -90f;
-                        relYaw = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) : (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                        relYaw = shiftKeyPressed ? GetSingleOrZero(sIncFine) : (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incYaw = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                        incYaw = shiftKeyPressed ? GetSingleOrZero(sIncFine) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_yawRight.GetKeyDown())
@@ -207,11 +299,11 @@ namespace PartAngleDisplay
                     if (relativeRotate)
                     {
                         incYaw = shiftKeyPressed ? 5f : 90f;
-                        relYaw = shiftKeyPressed ? -GetSingleOrZero(sShiftRotate) : -(altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                        relYaw = shiftKeyPressed ? -GetSingleOrZero(sIncFine) : -(altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incYaw = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : 90f - (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sPlainRotate));
+                        incYaw = shiftKeyPressed ? 5f - GetSingleOrZero(sIncFine) : 90f - (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_rollLeft.GetKeyDown())
@@ -219,11 +311,11 @@ namespace PartAngleDisplay
                     if (relativeRotate)
                     {
                         incRoll = shiftKeyPressed ? -5f : -90f;
-                        relRoll = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) : (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                        relRoll = shiftKeyPressed ? GetSingleOrZero(sIncFine) : (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incRoll = shiftKeyPressed ? GetSingleOrZero(sShiftRotate) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                        incRoll = shiftKeyPressed ? GetSingleOrZero(sIncFine) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_rollRight.GetKeyDown())
@@ -231,11 +323,11 @@ namespace PartAngleDisplay
                     if (relativeRotate)
                     {
                         incRoll = shiftKeyPressed ? 5f : 90f;
-                        relRoll = shiftKeyPressed ? -GetSingleOrZero(sShiftRotate) : -(altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                        relRoll = shiftKeyPressed ? -GetSingleOrZero(sIncFine) : -(altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incRoll = shiftKeyPressed ? 5f - GetSingleOrZero(sShiftRotate) : 90f - (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sPlainRotate));
+                        incRoll = shiftKeyPressed ? 5f - GetSingleOrZero(sIncFine) : 90f - (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
                     }
                 }
 
@@ -352,19 +444,19 @@ namespace PartAngleDisplay
             GUILayout.BeginHorizontal();
             GUILayout.Label("Rotation", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("<", buttonStyle, GUILayout.Width(20)))
-                sPlainRotate = IncreaseRotate(sPlainRotate);
+                sIncCoarse = IncreaseRotate(sIncCoarse);
             if (GUILayout.Button(">", buttonStyle, GUILayout.Width(20)))
-                sPlainRotate = DecreaseRotate(sPlainRotate);
-            sPlainRotate = GUILayout.TextField(sPlainRotate, 7, GetDataStyle(sPlainRotate));
+                sIncCoarse = DecreaseRotate(sIncCoarse);
+            sIncCoarse = GUILayout.TextField(sIncCoarse, 7, GetDataStyle(sIncCoarse));
             GUILayout.EndHorizontal();
             
             GUILayout.BeginHorizontal();
             GUILayout.Label("Fine", labelStyle, GUILayout.Width(60));
             if (GUILayout.Button("<", buttonStyle, GUILayout.Width(20)))
-                sShiftRotate = IncreaseRotate(sShiftRotate);
+                sIncFine = IncreaseRotate(sIncFine);
             if (GUILayout.Button(">", buttonStyle, GUILayout.Width(20)))
-                sShiftRotate = DecreaseRotate(sShiftRotate);
-            sShiftRotate = GUILayout.TextField(sShiftRotate, 7, GetDataStyle(sShiftRotate));
+                sIncFine = DecreaseRotate(sIncFine);
+            sIncFine = GUILayout.TextField(sIncFine, 7, GetDataStyle(sIncFine));
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
@@ -423,41 +515,47 @@ namespace PartAngleDisplay
 
             areaStyle = new GUIStyle(HighLogic.Skin.textArea);
 
-            labelStyle = new GUIStyle(HighLogic.Skin.label);
-            labelStyle.fontStyle = FontStyle.Normal;
-            labelStyle.alignment = TextAnchor.MiddleLeft;
-            labelStyle.stretchWidth = true;
-            labelStyle.padding = new RectOffset(0, 0, 0, 0);
-            labelStyle.margin = new RectOffset(0, 0, 1, 1);
+            labelStyle = new GUIStyle(HighLogic.Skin.label)
+            {
+                fontStyle = FontStyle.Normal,
+                alignment = TextAnchor.MiddleLeft,
+                stretchWidth = true,
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 1, 1)
+            };
 
-            dataStyle = new GUIStyle(HighLogic.Skin.label);
-            dataStyle.fontStyle = FontStyle.Normal;
-            dataStyle.alignment = TextAnchor.MiddleRight;
-            dataStyle.stretchWidth = true;
-            dataStyle.padding = new RectOffset(0, 0, 0, 0);
-            dataStyle.margin = new RectOffset(0, 0, 1, 1);
+            dataStyle = new GUIStyle(HighLogic.Skin.label)
+            {
+                fontStyle = FontStyle.Normal,
+                alignment = TextAnchor.MiddleRight,
+                stretchWidth = true,
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 1, 1)
+            };
 
-            badDataStyle = new GUIStyle(HighLogic.Skin.label);
-            badDataStyle.fontStyle = FontStyle.Normal;
-            badDataStyle.alignment = TextAnchor.MiddleRight;
-            badDataStyle.stretchWidth = true;
-            badDataStyle.normal.textColor = new Color(1.0f, 0.5f, 0.5f);
-            badDataStyle.focused.textColor = new Color(1.0f, 0.5f, 0.5f);
-            badDataStyle.padding = new RectOffset(0, 0, 0, 0);
-            badDataStyle.margin = new RectOffset(0, 0, 1, 1);
+            badDataStyle = new GUIStyle(HighLogic.Skin.label)
+            {
+                fontStyle = FontStyle.Normal,
+                alignment = TextAnchor.MiddleRight,
+                stretchWidth = true,
+                normal = { textColor = new Color(1.0f, 0.5f, 0.5f) },
+                focused = { textColor = new Color(1.0f, 0.5f, 0.5f) },
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 1, 1)
+            };
 
-            buttonStyle = new GUIStyle(HighLogic.Skin.button);
-            buttonStyle.fixedWidth = 20;
-            buttonStyle.padding = new RectOffset(0, 0, 0, 0);
-            buttonStyle.margin = new RectOffset(0, 0, 1, 1);
-            buttonStyle.border = new RectOffset(2, 0, 0, 0);
+            buttonStyle = new GUIStyle(HighLogic.Skin.button)
+            {
+                fixedWidth = 20,
+                padding = new RectOffset(0, 0, 0, 0),
+                margin = new RectOffset(0, 0, 0, 0),
+                border = new RectOffset(1, 0, 0, 0)
+            };
         }
 
-#if false
         private void Trace(String message)
         {
-            print(message);
+            print("[PAD] " + message);
         }
-#endif
     }
 }

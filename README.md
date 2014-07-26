@@ -17,6 +17,10 @@ It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bi
 
 Change Log
 ==========
+	26/07/2014 17:33 GMT   Compiled against KSP 0.24.2
+	                       Added loading and saving of settings (window position, visibility and all the control settings)
+	                       Updated to version 0.2.4.2
+
 	25/07/2014 08:43 GMT   Compiled against KSP 0.24.1
 	                       Updated to version 0.2.4.1
 
