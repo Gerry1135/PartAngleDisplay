@@ -54,6 +54,10 @@ namespace PartAngleDisplay
         bool relativeRotate = false;
         bool absoluteAngles = false;
 
+        Int32 keyToggleWindow = (Int32)KeyCode.P;
+        Int32 keyApplyEuler = (Int32)KeyCode.P;
+        Int32 keyCycleFine = (Int32)KeyCode.F;
+
         static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
 
         const string configFilename = "settings.cfg";
@@ -88,7 +92,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.4.2)";
+            WindowTitle = "Part Angle Display (0.2.4.3)";
             WindowRect = new Rect(300, 200, 200, 50);
             WindowID = Guid.NewGuid().GetHashCode();
         }
@@ -149,6 +153,24 @@ namespace PartAngleDisplay
                             else
                                 Trace("Ignoring invalid rectangle in settings: '" + lines[i] + "'");
                         }
+                        else if (key == "keyToggleWindow")
+                        {
+                            Int32 keyCode = 0;
+                            if (Int32.TryParse(val, out keyCode))
+                                keyToggleWindow = keyCode;
+                        }
+                        else if (key == "keyApplyEuler")
+                        {
+                            Int32 keyCode = 0;
+                            if (Int32.TryParse(val, out keyCode))
+                                keyApplyEuler = keyCode;
+                        }
+                        else if (key == "keyCycleFine")
+                        {
+                            Int32 keyCode = 0;
+                            if (Int32.TryParse(val, out keyCode))
+                                keyCycleFine = keyCode;
+                        }
                         else
                             Trace("Ignoring invalid key in settings: '" + lines[i] + "'");
                     }
@@ -171,6 +193,9 @@ namespace PartAngleDisplay
             file.WriteLine("relRotate = " + (relativeRotate ? "true" : "false"));
             file.WriteLine("absAngles = " + (absoluteAngles ? "true" : "false"));
             file.WriteLine("windowPos = {0:f},{1:f},{2:f},{3:f}", WindowRect.x, WindowRect.y, WindowRect.width, WindowRect.height);
+            file.WriteLine("keyToggleWindow = " + (Int32)keyToggleWindow);
+            file.WriteLine("keyApplyEuler = " + (Int32)keyApplyEuler);
+            file.WriteLine("keyCycleFine = " + (Int32)keyCycleFine);
 
             file.Close();
         }
@@ -215,7 +240,7 @@ namespace PartAngleDisplay
 
             // Key handling
             // F/Shift-F/Alt-F  decrease/increase/reset shift-rotation angle
-            if (Input.GetKeyDown(KeyCode.F))
+            if (Input.GetKeyDown((KeyCode)keyCycleFine))
             {
                 if (altKeyPressed)
                     sIncFine = "5.0";
@@ -229,7 +254,7 @@ namespace PartAngleDisplay
             // ALT-P            toggle the visible state of the window
             if (!editor.PartSelected)
             {
-                if (altKeyPressed && Input.GetKeyDown(KeyCode.P))
+                if (altKeyPressed && Input.GetKeyDown((KeyCode)keyToggleWindow))
                 {
                     // Toggle the visibility
                     Visible = !Visible;
@@ -239,7 +264,7 @@ namespace PartAngleDisplay
             {
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
                 // ALT+P: Applies all 3 axes using Euler angles
-                if (altKeyPressed && Input.GetKeyDown(KeyCode.P))
+                if (altKeyPressed && Input.GetKeyDown((KeyCode)keyApplyEuler))
                 {
                     //Trace("Applying part rotation");
                     Vector3 incAngles;

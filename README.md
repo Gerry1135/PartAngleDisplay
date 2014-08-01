@@ -13,10 +13,15 @@ Version 0.2.1 fixes the handling of the standard pitch keys and makes the angle 
 
 Version 0.2.2 introduces "Part-relative" mode.  This changes the rotation keys to act around the axes of the currently selected part rather than the usual fixed axes.  E.g. if you rotate a Mk 1 plane cockpit to an odd angle and then switch to "Part-relative" and roll using Q and E the part will roll around its own axis.
 
+Version 0.2.4.2 added the saving and loading of settings (window position, visibility and all the control settings) and version 0.2.4.3 made the keyboard shortcuts configurable in the settings file.  To change the shortcuts you will need to run the game and enter and exit the VAB/SPH once for the default settings file to be written out (in GameData\PartAngleDisplay\PluginData\PartAngleDisplay\settings.cfg).  Then simply edit this file (you shouldn't even need to quit KSP) and change the three lines starting "key" to be the keycodes you desire.  Note that the "toggle window" and "apply Euler" operations always use the configured modifier key and the "cycle fine" operation uses plain, shifted and modified keypresses.
+
 It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bit confusing.  I am releasing it as is just in case anyone else finds it useful or wants to develop it further. There are various issues with it (e.g. the editable fields behave quite strange) but it works for what I designed it for (setting the pitch angle of radially attached girders to 2 decimal places).
 
 Change Log
 ==========
+	01/08/2014 11:57 GMT   Now allows the keyboard shortcuts to be configured in the settings file
+                           Updated to version 0.2.4.3
+
 	26/07/2014 17:33 GMT   Compiled against KSP 0.24.2
 	                       Added loading and saving of settings (window position, visibility and all the control settings)
 	                       Updated to version 0.2.4.2
