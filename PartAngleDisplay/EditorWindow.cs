@@ -21,6 +21,7 @@
 */
 
 using System;
+using System.Reflection;
 using UnityEngine;
 using KSP.IO;
 
@@ -32,7 +33,7 @@ namespace PartAngleDisplay
         Int32 WindowID;
         String WindowTitle;
         Rect WindowRect;
-
+        ApplicationLauncherButton buttonAppLaunch;
         EditorLogic editor;
         GUIStyle windowStyle;
         GUIStyle areaStyle;
@@ -53,16 +54,24 @@ namespace PartAngleDisplay
         bool startVisible = false;
         bool relativeRotate = false;
         bool absoluteAngles = false;
+        bool useAppLaunch = true;
 
         Int32 keyToggleWindow = (Int32)KeyCode.P;
         Int32 keyApplyEuler = (Int32)KeyCode.P;
         Int32 keyCycleFine = (Int32)KeyCode.F;
 
         static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
+        static Texture2D texAppLaunch;
 
         const string configFilename = "settings.cfg";
 
         private Boolean _Visible = false;
+
+        public EditorWindow()
+        {
+            //Trace("EditorWindow.EditorWindow");
+        }
+
         public Boolean Visible
         {
             get { return _Visible; }
@@ -79,9 +88,9 @@ namespace PartAngleDisplay
             }
         }
 
-        public EditorWindow()
+        private void ToggleWindow()
         {
-            //Trace("EditorWindow.EditorWindow");
+            Visible = !Visible;
         }
 
         public void Awake()
@@ -92,22 +101,49 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.4.3)";
+            WindowTitle = "Part Angle Display (0.2.4.4)";
             WindowRect = new Rect(300, 200, 200, 50);
             WindowID = Guid.NewGuid().GetHashCode();
+
+            LoadConfig();
+
+            if (useAppLaunch)
+            {
+                if (texAppLaunch == null)
+                {
+                    texAppLaunch = new Texture2D(36, 36, TextureFormat.RGBA32, false);
+                    texAppLaunch.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "applaunch.png")));
+                }
+
+                buttonAppLaunch = ApplicationLauncher.Instance.AddModApplication(
+                    ToggleWindow,
+                    ToggleWindow,
+                    null,
+                    null,
+                    null,
+                    null,
+                    ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH,
+                    texAppLaunch
+                    );
+            }
         }
 
         public void Start()
         {
             //Trace("EditorWindow.Start");
 
-            LoadConfig();
             Visible = startVisible;
         }
 
         void OnDestroy()
         {
             SaveConfig();
+
+            if (buttonAppLaunch != null)
+            {
+                ApplicationLauncher.Instance.RemoveModApplication(buttonAppLaunch);
+                buttonAppLaunch = null;
+            }
         }
 
         // Simple, hardwired config
@@ -125,7 +161,7 @@ namespace PartAngleDisplay
                         string key = line[0].Trim();
                         string val = line[1].Trim();
                         if (key == "visible")
-                            SetBool(val, ref startVisible);
+                            ReadBool(val, ref startVisible);
                         else if (key == "incPitch")
                             sIncPitch = val;
                         else if (key == "incRoll")
@@ -137,9 +173,9 @@ namespace PartAngleDisplay
                         else if (key == "incFine")
                             sIncFine = val;
                         else if (key == "relRotate")
-                            SetBool(val, ref relativeRotate);
+                            ReadBool(val, ref relativeRotate);
                         else if (key == "absAngles")
-                            SetBool(val, ref absoluteAngles);
+                            ReadBool(val, ref absoluteAngles);
                         else if (key == "windowPos")
                         {
                             string[] vals = val.Split(',');
@@ -154,23 +190,13 @@ namespace PartAngleDisplay
                                 Trace("Ignoring invalid rectangle in settings: '" + lines[i] + "'");
                         }
                         else if (key == "keyToggleWindow")
-                        {
-                            Int32 keyCode = 0;
-                            if (Int32.TryParse(val, out keyCode))
-                                keyToggleWindow = keyCode;
-                        }
+                            ReadKeyCode(val, ref keyToggleWindow);
                         else if (key == "keyApplyEuler")
-                        {
-                            Int32 keyCode = 0;
-                            if (Int32.TryParse(val, out keyCode))
-                                keyApplyEuler = keyCode;
-                        }
+                            ReadKeyCode(val, ref keyApplyEuler);
                         else if (key == "keyCycleFine")
-                        {
-                            Int32 keyCode = 0;
-                            if (Int32.TryParse(val, out keyCode))
-                                keyCycleFine = keyCode;
-                        }
+                            ReadKeyCode(val, ref keyCycleFine);
+                        else if (key == "useAppLaunch")
+                            ReadBool(val, ref useAppLaunch);
                         else
                             Trace("Ignoring invalid key in settings: '" + lines[i] + "'");
                     }
@@ -196,11 +222,12 @@ namespace PartAngleDisplay
             file.WriteLine("keyToggleWindow = " + (Int32)keyToggleWindow);
             file.WriteLine("keyApplyEuler = " + (Int32)keyApplyEuler);
             file.WriteLine("keyCycleFine = " + (Int32)keyCycleFine);
+            file.WriteLine("useAppLaunch = " + (useAppLaunch ? "true" : "false"));
 
             file.Close();
         }
 
-        void SetBool(string val, ref bool variable)
+        void ReadBool(string val, ref bool variable)
         {
             if (val == "true")
                 variable = true;
@@ -208,8 +235,17 @@ namespace PartAngleDisplay
                 variable = false;
         }
 
+        void ReadKeyCode(string val, ref Int32 variable)
+        {
+            Int32 keyCode = 0;
+            if (Int32.TryParse(val, out keyCode))
+                variable = keyCode;
+        }
+
         public void Update()
         {
+            SetAppLaunchState();
+            
             editor = EditorLogic.fetch;
             if (editor == null)
                 return;
@@ -257,7 +293,7 @@ namespace PartAngleDisplay
                 if (altKeyPressed && Input.GetKeyDown((KeyCode)keyToggleWindow))
                 {
                     // Toggle the visibility
-                    Visible = !Visible;
+                    ToggleWindow();
                 }
             }
             else
@@ -576,6 +612,17 @@ namespace PartAngleDisplay
                 margin = new RectOffset(0, 0, 0, 0),
                 border = new RectOffset(1, 0, 0, 0)
             };
+        }
+
+        private void SetAppLaunchState()
+        {
+            if (buttonAppLaunch != null)
+            {
+                if (_Visible && buttonAppLaunch.State == RUIToggleButton.ButtonState.FALSE)
+                    buttonAppLaunch.SetTrue(false);
+                else if (!_Visible && buttonAppLaunch.State == RUIToggleButton.ButtonState.TRUE)
+                    buttonAppLaunch.SetFalse(false);
+            }
         }
 
         private void Trace(String message)
