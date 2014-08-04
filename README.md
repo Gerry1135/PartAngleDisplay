@@ -5,20 +5,26 @@ This is a simple KSP plugin that allows you to surface attach parts at accurate 
 
 Simply put, the plugin allows you to display a small window in the VAB/SPH that displays the orientation of the currently selected part as pitch, roll and yaw angles and it also allows you to enter increment values for the pitch, roll and yaw and to apply these to the selected part.
 
-It originally used a single hotkey (Alt-P as it doesn't clash with any of the mods I use). If you do not have a part selected then it will show or hide the window. If you do have a part selected then it will apply the angle increments to the part by simply adding the increment values to the displayed Euler angles and re-setting the rotation of the selected part.  This has strange effects caused by the way that Euler angles work.
+It originally used a single hotkey (Alt-P as it didn't clash with any of the mods I use). If you do not have a part selected then it will show or hide the window. If you do have a part selected then it will apply the angle increments to the part by simply adding the increment values to the displayed Euler angles and re-setting the rotation of the selected part.  This has strange effects caused by the way that Euler angles work.
 
 Version 0.2 introduced a new way use the plugin.  The original Alt-P hotkey still works the same way but it also now overrides the handling of ALT-WASDQE (the standard part rotation controls with ALT held down) in the stock game (they do the same as the unmodified key, rotate by 90 degrees) to instead rotate by whatever angle increment is entered into the respective field in the dialog.  This allows you to set increment values to 1 (or 0.1 or even 0.01) and then have seamless, accurate rotation of parts.
 
-Version 0.2.1 fixes the handling of the standard pitch keys and makes the angle increments they use configurable.  W/S and Shift-W/S no longer go in opposite directions.  The < and > buttons can be used to cycle the angle setting through 120, 90, 72, 60, 45, 30, 15, 10, 5, 1, 0.1 and 0.01 degrees.  The F key also adjusts the "Fine" angle control (F to cycle down, Shift-F to cycle up and Alt-F to reset to 5).
+Version 0.2.1 fixed the handling of the standard pitch keys and makes the angle increments they use configurable.  W/S and Shift-W/S no longer go in opposite directions.  The < and > buttons can be used to cycle the angle setting through 120, 90, 72, 60, 45, 30, 15, 10, 5, 1, 0.1 and 0.01 degrees.  The F key also adjusts the "Fine" angle control (F to cycle down, Shift-F to cycle up and Alt-F to reset to 5).
 
-Version 0.2.2 introduces "Part-relative" mode.  This changes the rotation keys to act around the axes of the currently selected part rather than the usual fixed axes.  E.g. if you rotate a Mk 1 plane cockpit to an odd angle and then switch to "Part-relative" and roll using Q and E the part will roll around its own axis.
+Version 0.2.2 introduced "Part-relative" mode.  This changes the rotation keys to act around the axes of the currently selected part rather than the usual fixed axes.  E.g. if you rotate a Mk 1 plane cockpit to an odd angle and then switch to "Part-relative" and roll using Q and E the part will roll around its own axis.
 
-Version 0.2.4.2 added the saving and loading of settings (window position, visibility and all the control settings) and version 0.2.4.3 made the keyboard shortcuts configurable in the settings file.  To change the shortcuts you will need to run the game and enter and exit the VAB/SPH once for the default settings file to be written out (in GameData\PartAngleDisplay\PluginData\PartAngleDisplay\settings.cfg).  Then simply edit this file (you shouldn't even need to quit KSP) and change the three lines starting "key" to be the keycodes you desire.  Note that the "toggle window" and "apply Euler" operations always use the configured modifier key and the "cycle fine" operation uses plain, shifted and modified keypresses.
+Version 0.2.4.2 added the saving and loading of settings (window position, visibility and all the control settings).
 
-It is getting "nicer" though the non-intuitive behaviour of Euler angles is a bit confusing.  I am releasing it as is just in case anyone else finds it useful or wants to develop it further. There are various issues with it (e.g. the editable fields behave quite strange) but it works for what I designed it for (setting the pitch angle of radially attached girders to 2 decimal places).
+Version 0.2.4.3 made the keyboard shortcuts configurable in the settings file.  To change the shortcuts you will need to run the game and enter and exit the VAB/SPH once for the default settings file to be written out (in GameData\PartAngleDisplay\PluginData\PartAngleDisplay\settings.cfg).  Then simply edit this file (you shouldn't even need to quit KSP) and change the three lines starting "key" to be the keycodes you desire.  Note that the "toggle window" and "apply Euler" operations always use the configured modifier key and the "cycle fine" operation uses plain, shifted and modified keypresses.
+
+Version 0.2.4.4 added support for both the stock and Blizzy's toolbars.  The use of the stock toolbar can be disabled in the settings file (useAppLaunch).
 
 Change Log
 ==========
+	04/08/2014 19:50 GMT   Now supports both the stock and Blizzy's toolbars
+                           Use of stock toolbar can be disabled in settings (useAppLaunch)
+                           Updated to version 0.2.4.4
+
 	01/08/2014 11:57 GMT   Now allows the keyboard shortcuts to be configured in the settings file
                            Updated to version 0.2.4.3
 
