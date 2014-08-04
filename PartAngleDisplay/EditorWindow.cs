@@ -34,6 +34,7 @@ namespace PartAngleDisplay
         String WindowTitle;
         Rect WindowRect;
         ApplicationLauncherButton buttonAppLaunch;
+        IButton buttonToolbar;
         EditorLogic editor;
         GUIStyle windowStyle;
         GUIStyle areaStyle;
@@ -64,6 +65,8 @@ namespace PartAngleDisplay
         static Texture2D texAppLaunch;
 
         const string configFilename = "settings.cfg";
+        const string pathToolbarDisabled = "PartAngleDisplay/toolbaroff";
+        const string pathToolbarEnabled = "PartAngleDisplay/toolbaron";
 
         private Boolean _Visible = false;
 
@@ -111,7 +114,7 @@ namespace PartAngleDisplay
             {
                 if (texAppLaunch == null)
                 {
-                    texAppLaunch = new Texture2D(36, 36, TextureFormat.RGBA32, false);
+                    texAppLaunch = new Texture2D(38, 38, TextureFormat.RGBA32, false);
                     texAppLaunch.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "applaunch.png")));
                 }
 
@@ -125,6 +128,15 @@ namespace PartAngleDisplay
                     ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH,
                     texAppLaunch
                     );
+            }
+
+            if (ToolbarManager.ToolbarAvailable)
+            {
+                buttonToolbar = ToolbarManager.Instance.add("PAD", "button");
+                buttonToolbar.ToolTip = "Part Angle Display";
+                SetToolbarState();
+                buttonToolbar.OnClick += e => ToggleWindow();
+                buttonToolbar.Visible = true;
             }
         }
 
@@ -143,6 +155,12 @@ namespace PartAngleDisplay
             {
                 ApplicationLauncher.Instance.RemoveModApplication(buttonAppLaunch);
                 buttonAppLaunch = null;
+            }
+
+            if (buttonToolbar != null)
+            {
+                buttonToolbar.Destroy();
+                buttonToolbar = null;
             }
         }
 
@@ -245,6 +263,7 @@ namespace PartAngleDisplay
         public void Update()
         {
             SetAppLaunchState();
+            SetToolbarState();
             
             editor = EditorLogic.fetch;
             if (editor == null)
@@ -623,6 +642,12 @@ namespace PartAngleDisplay
                 else if (!_Visible && buttonAppLaunch.State == RUIToggleButton.ButtonState.TRUE)
                     buttonAppLaunch.SetFalse(false);
             }
+        }
+
+        private void SetToolbarState()
+        {
+            if (buttonToolbar != null)
+                buttonToolbar.TexturePath = _Visible ? pathToolbarEnabled : pathToolbarDisabled;
         }
 
         private void Trace(String message)
