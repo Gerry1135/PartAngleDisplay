@@ -21,6 +21,9 @@ Version 0.2.4.4 added support for both the stock and Blizzy's toolbars.  The use
 
 Change Log
 ==========
+	12/08/2014 19:50 GMT   Fixed yaw and roll controls when editor mode is changed using Editor Extensions
+                           Updated to version 0.2.4.5
+
 	04/08/2014 19:50 GMT   Now supports both the stock and Blizzy's toolbars
                            Use of stock toolbar can be disabled in settings (useAppLaunch)
                            Updated to version 0.2.4.4

@@ -104,7 +104,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.4.4)";
+            WindowTitle = "Part Angle Display (0.2.4.5)";
             WindowRect = new Rect(300, 200, 200, 50);
             WindowID = Guid.NewGuid().GetHashCode();
 
@@ -418,7 +418,7 @@ namespace PartAngleDisplay
 
         private void ApplyIncrements(float incPitch, float incYaw, float incRoll)
         {
-            bool isVAB = editor.editorType == EditorLogic.EditorMode.VAB;
+            bool isVAB = HighLogic.LoadedScene == GameScenes.EDITOR;
             if (incPitch != 0f)
             {
                 //Trace("Applying pitch of " + incPitch);
@@ -447,8 +447,6 @@ namespace PartAngleDisplay
             Part part = EditorLogic.SelectedPart;
             if (part == null)
                 return;
-
-            bool isVAB = editor.editorType == EditorLogic.EditorMode.VAB;
 
             if (relPitch != 0f)
             {
@@ -481,7 +479,7 @@ namespace PartAngleDisplay
 
         private void Window(int windowID)
         {
-            bool isVAB = editor.editorType == EditorLogic.EditorMode.VAB; 
+            bool isVAB = HighLogic.LoadedScene == GameScenes.EDITOR;
 
             GUILayout.BeginVertical(areaStyle);
 
