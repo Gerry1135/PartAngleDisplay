@@ -59,6 +59,7 @@ namespace PartAngleDisplay
 
         Int32 keyToggleWindow = (Int32)KeyCode.P;
         Int32 keyApplyEuler = (Int32)KeyCode.P;
+        Int32 keyCycleRotate = (Int32)KeyCode.G;
         Int32 keyCycleFine = (Int32)KeyCode.F;
 
         static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
@@ -211,6 +212,8 @@ namespace PartAngleDisplay
                             ReadKeyCode(val, ref keyToggleWindow);
                         else if (key == "keyApplyEuler")
                             ReadKeyCode(val, ref keyApplyEuler);
+                        else if (key == "keyCycleRotate")
+                            ReadKeyCode(val, ref keyCycleRotate);
                         else if (key == "keyCycleFine")
                             ReadKeyCode(val, ref keyCycleFine);
                         else if (key == "useAppLaunch")
@@ -239,6 +242,7 @@ namespace PartAngleDisplay
             file.WriteLine("windowPos = {0:f},{1:f},{2:f},{3:f}", WindowRect.x, WindowRect.y, WindowRect.width, WindowRect.height);
             file.WriteLine("keyToggleWindow = " + (Int32)keyToggleWindow);
             file.WriteLine("keyApplyEuler = " + (Int32)keyApplyEuler);
+            file.WriteLine("keyCycleRotate = " + (Int32)keyCycleRotate);
             file.WriteLine("keyCycleFine = " + (Int32)keyCycleFine);
             file.WriteLine("useAppLaunch = " + (useAppLaunch ? "true" : "false"));
 
@@ -286,24 +290,17 @@ namespace PartAngleDisplay
             sRoll = eulerAngles.y.ToString("0.00");
             sYaw = eulerAngles.z.ToString("0.00");
 
-            //check for the various alt/mod etc keypresses
-            //bool altKeyPressed = Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt) || Input.GetKey(KeyCode.AltGr);
-            // Actually read the configured modifier key binding
+            // Get the state of the shift key and the configured modifier key
+            bool shiftKeyPressed = Input.GetKey(KeyCode.LeftShift);
             bool altKeyPressed = GameSettings.MODIFIER_KEY.GetKey();
-            bool shiftKeyPressed = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            //Trace("alt = " + altKeyPressed + "  shift = " + shiftKeyPressed);
+            //Trace("shift = " + shiftKeyPressed + "  alt = " + altKeyPressed);
 
             // Key handling
+            // R/Shift-R/Alt-R  decrease/increase/reset rotation angle
+            HandleCycleKey(keyCycleRotate, shiftKeyPressed, altKeyPressed, ref sIncCoarse);
+            
             // F/Shift-F/Alt-F  decrease/increase/reset shift-rotation angle
-            if (Input.GetKeyDown((KeyCode)keyCycleFine))
-            {
-                if (altKeyPressed)
-                    sIncFine = "5.0";
-                else if (shiftKeyPressed)
-                    sIncFine = IncreaseRotate(sIncFine);
-                else
-                    sIncFine = DecreaseRotate(sIncFine);
-            }
+            HandleCycleKey(keyCycleFine, shiftKeyPressed, altKeyPressed, ref sIncFine);
 
             // When no part is selected:
             // ALT-P            toggle the visible state of the window
@@ -318,7 +315,7 @@ namespace PartAngleDisplay
             else
             {
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
-                // ALT+P: Applies all 3 axes using Euler angles
+                // ALT-P: Applies all 3 axes using Euler angles
                 if (altKeyPressed && Input.GetKeyDown((KeyCode)keyApplyEuler))
                 {
                     //Trace("Applying part rotation");
@@ -468,6 +465,19 @@ namespace PartAngleDisplay
                 Quaternion qRoll = Quaternion.AngleAxis(relRoll, part.transform.up);
                 //Trace("quaternion = " + qRoll.ToString());
                 editor.partRotation = qRoll * editor.partRotation;
+            }
+        }
+
+        private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool altDown, ref string incValue)
+        {
+            if (keyCode != (Int32)KeyCode.None && Input.GetKeyDown((KeyCode)keyCode))
+            {
+                if (altDown)
+                    incValue = "5.0";
+                else if (shiftDown)
+                    incValue = IncreaseRotate(incValue);
+                else
+                    incValue = DecreaseRotate(incValue);
             }
         }
 
