@@ -296,7 +296,7 @@ namespace PartAngleDisplay
             //Trace("shift = " + shiftKeyPressed + "  alt = " + altKeyPressed);
 
             // Key handling
-            // R/Shift-R/Alt-R  decrease/increase/reset rotation angle
+            // G/Shift-G/Alt-G  decrease/increase/reset rotation angle
             HandleCycleKey(keyCycleRotate, shiftKeyPressed, altKeyPressed, ref sIncCoarse);
             
             // F/Shift-F/Alt-F  decrease/increase/reset shift-rotation angle
