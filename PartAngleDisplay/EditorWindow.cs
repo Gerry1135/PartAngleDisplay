@@ -105,13 +105,13 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.4.5)";
+            WindowTitle = "Part Angle Display (0.2.4.6)";
             WindowRect = new Rect(300, 200, 200, 50);
             WindowID = Guid.NewGuid().GetHashCode();
 
             LoadConfig();
 
-            if (useAppLaunch)
+            if (useAppLaunch && ApplicationLauncher.Ready)
             {
                 if (texAppLaunch == null)
                 {

@@ -19,8 +19,14 @@ Version 0.2.4.3 made the keyboard shortcuts configurable in the settings file.  
 
 Version 0.2.4.4 added support for both the stock and Blizzy's toolbars.  The use of the stock toolbar can be disabled in the settings file (useAppLaunch).
 
+Version 0.2.4.6 added the G key to cycle the normal rotation increment.
+
 Change Log
 ==========
+	26/09/2014 21:31 GMT   Added G key to cycle normal rotation increment
+                           Compiled against KSP 0.24.2.627 (experimental)
+                           Updated to version 0.2.4.6
+
 	12/08/2014 19:50 GMT   Fixed yaw and roll controls when editor mode is changed using Editor Extensions
                            Updated to version 0.2.4.5
 
