@@ -1,0 +1,16 @@
+{
+	"NAME":"Part Angle Display",
+	"URL":"http://ksp-avc.cybutek.net/version.php?id=88",
+	"DOWNLOAD":"http://kerbal.curseforge.com/ksp-mods/220831-part-angle-display",
+	"VERSION":{
+		"MAJOR":0,
+		"MINOR":3,
+		"PATCH":0,
+		"BUILD":0
+	},
+	"KSP_VERSION":{
+		"MAJOR":0,
+		"MINOR":90,
+		"PATCH":0
+	}
+}
