@@ -33,8 +33,8 @@ namespace PartAngleDisplay
         Int32 WindowID;
         String WindowTitle;
         Rect WindowRect;
-        ApplicationLauncherButton buttonAppLaunch;
-        IButton buttonToolbar;
+        ApplicationLauncherButton buttonAppLaunch = null;
+        IButton buttonToolbar = null;
         EditorLogic editor;
         GUIStyle windowStyle;
         GUIStyle areaStyle;
@@ -59,8 +59,9 @@ namespace PartAngleDisplay
 
         Int32 keyToggleWindow = (Int32)KeyCode.P;
         Int32 keyApplyEuler = (Int32)KeyCode.P;
-        Int32 keyCycleRotate = (Int32)KeyCode.G;
-        Int32 keyCycleFine = (Int32)KeyCode.F;
+        Int32 keyCycleRotate = (Int32)KeyCode.B;
+        Int32 keyCycleFine = (Int32)KeyCode.G;
+        Int32 keyVeryFineMod = (Int32)KeyCode.LeftControl;
 
         static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
         static Texture2D texAppLaunch;
@@ -74,6 +75,7 @@ namespace PartAngleDisplay
         public EditorWindow()
         {
             //Trace("EditorWindow.EditorWindow");
+            //Trace("ApplicationLauncher is " + (ApplicationLauncher.Ready ? "" : "not ") + "ready");
         }
 
         public Boolean Visible
@@ -100,36 +102,23 @@ namespace PartAngleDisplay
         public void Awake()
         {
             //Trace("EditorWindow.Awake");
+            //Trace("ApplicationLauncher is " + (ApplicationLauncher.Ready ? "" : "not ") + "ready");
 
             editor = EditorLogic.fetch;
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.2.4.6)";
+            WindowTitle = "Part Angle Display (0.3.0.0)";
             WindowRect = new Rect(300, 200, 200, 50);
             WindowID = Guid.NewGuid().GetHashCode();
 
             LoadConfig();
+        }
 
-            if (useAppLaunch && ApplicationLauncher.Ready)
-            {
-                if (texAppLaunch == null)
-                {
-                    texAppLaunch = new Texture2D(38, 38, TextureFormat.RGBA32, false);
-                    texAppLaunch.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "applaunch.png")));
-                }
-
-                buttonAppLaunch = ApplicationLauncher.Instance.AddModApplication(
-                    ToggleWindow,
-                    ToggleWindow,
-                    null,
-                    null,
-                    null,
-                    null,
-                    ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH,
-                    texAppLaunch
-                    );
-            }
+        public void Start()
+        {
+            //Trace("EditorWindow.Start");
+            //Trace("ApplicationLauncher is " + (ApplicationLauncher.Ready ? "" : "not ") + "ready");
 
             if (ToolbarManager.ToolbarAvailable)
             {
@@ -139,17 +128,15 @@ namespace PartAngleDisplay
                 buttonToolbar.OnClick += e => ToggleWindow();
                 buttonToolbar.Visible = true;
             }
-        }
-
-        public void Start()
-        {
-            //Trace("EditorWindow.Start");
 
             Visible = startVisible;
         }
 
         void OnDestroy()
         {
+            //Trace("EditorWindow.OnDestroy");
+            //Trace("ApplicationLauncher is " + (ApplicationLauncher.Ready ? "" : "not ") + "ready");
+
             SaveConfig();
 
             if (buttonAppLaunch != null)
@@ -216,6 +203,8 @@ namespace PartAngleDisplay
                             ReadKeyCode(val, ref keyCycleRotate);
                         else if (key == "keyCycleFine")
                             ReadKeyCode(val, ref keyCycleFine);
+                        else if (key == "keyVeryFineMod")
+                            ReadKeyCode(val, ref keyVeryFineMod);
                         else if (key == "useAppLaunch")
                             ReadBool(val, ref useAppLaunch);
                         else
@@ -244,6 +233,7 @@ namespace PartAngleDisplay
             file.WriteLine("keyApplyEuler = " + (Int32)keyApplyEuler);
             file.WriteLine("keyCycleRotate = " + (Int32)keyCycleRotate);
             file.WriteLine("keyCycleFine = " + (Int32)keyCycleFine);
+            file.WriteLine("keyVeryFineMod = " + (Int32)keyVeryFineMod);
             file.WriteLine("useAppLaunch = " + (useAppLaunch ? "true" : "false"));
 
             file.Close();
@@ -266,6 +256,33 @@ namespace PartAngleDisplay
 
         public void Update()
         {
+            if (useAppLaunch && buttonAppLaunch == null)
+            {
+                if (ApplicationLauncher.Ready)
+                {
+                    if (texAppLaunch == null)
+                    {
+                        texAppLaunch = new Texture2D(38, 38, TextureFormat.RGBA32, false);
+                        texAppLaunch.LoadImage(System.IO.File.ReadAllBytes(System.IO.Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "applaunch.png")));
+                    }
+
+                    buttonAppLaunch = ApplicationLauncher.Instance.AddModApplication(
+                        ToggleWindow,
+                        ToggleWindow,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ApplicationLauncher.AppScenes.VAB | ApplicationLauncher.AppScenes.SPH,
+                        texAppLaunch
+                        );
+                }
+                //else
+                //{
+                    //Trace("ApplicationLauncher is not ready in Update");
+                //}
+            }
+
             SetAppLaunchState();
             SetToolbarState();
             
@@ -273,14 +290,15 @@ namespace PartAngleDisplay
             if (editor == null)
                 return;
 
-            if (editor.editorScreen != EditorLogic.EditorScreen.Parts)
+            if (editor.editorScreen != EditorScreen.Parts)
                 return;
 
             // Update our values
-            if (editor.PartSelected)
+            if (EditorLogic.SelectedPart)
             {
                 //Trace("partRotation = " + editor.partRotation.eulerAngles.ToString());
-                eulerAngles = editor.partRotation.eulerAngles;
+                //eulerAngles = editor.partRotation.eulerAngles;
+                eulerAngles = EditorLogic.SelectedPart.attRotation.eulerAngles;
             }
             else
             {
@@ -290,40 +308,48 @@ namespace PartAngleDisplay
             sRoll = eulerAngles.y.ToString("0.00");
             sYaw = eulerAngles.z.ToString("0.00");
 
-            // Get the state of the shift key and the configured modifier key
-            bool shiftKeyPressed = Input.GetKey(KeyCode.LeftShift);
-            bool altKeyPressed = GameSettings.MODIFIER_KEY.GetKey();
-            //Trace("shift = " + shiftKeyPressed + "  alt = " + altKeyPressed);
-
             // Key handling
-            // G/Shift-G/Alt-G  decrease/increase/reset rotation angle
-            HandleCycleKey(keyCycleRotate, shiftKeyPressed, altKeyPressed, ref sIncCoarse);
-            
-            // F/Shift-F/Alt-F  decrease/increase/reset shift-rotation angle
-            HandleCycleKey(keyCycleFine, shiftKeyPressed, altKeyPressed, ref sIncFine);
+            // Get the state of the shift key and the configured modifier keys
+            bool fineTweakKeyPressed = GameSettings.Editor_fineTweak.GetKey();
+            bool veryFineTweakKeyPressed = Input.GetKey((KeyCode)keyVeryFineMod);
+            bool modKeyPressed = GameSettings.MODIFIER_KEY.GetKey();
+
+            //if (Input.GetKeyDown(KeyCode.M))
+            //{
+                //DumpInfo();
+            //}
+
+            if (editor.EditorConstructionMode == ConstructionMode.Place)
+            {
+                // G/Shift-G/Mod-G  decrease/increase/reset rotation angle
+                HandleCycleKey(keyCycleRotate, fineTweakKeyPressed, modKeyPressed, ref sIncCoarse);
+
+                // F/Shift-F/Mod-F  decrease/increase/reset shift-rotation angle
+                HandleCycleKey(keyCycleFine, fineTweakKeyPressed, modKeyPressed, ref sIncFine);
+            }
 
             // When no part is selected:
-            // ALT-P            toggle the visible state of the window
-            if (!editor.PartSelected)
+            // Mod-P            toggle the visible state of the window
+            if (!EditorLogic.SelectedPart)
             {
-                if (altKeyPressed && Input.GetKeyDown((KeyCode)keyToggleWindow))
+                if (modKeyPressed && Input.GetKeyDown((KeyCode)keyToggleWindow))
                 {
                     // Toggle the visibility
                     ToggleWindow();
                 }
             }
-            else
+            else if (editor.EditorConstructionMode == ConstructionMode.Place)
             {
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
-                // ALT-P: Applies all 3 axes using Euler angles
-                if (altKeyPressed && Input.GetKeyDown((KeyCode)keyApplyEuler))
+                // Mod-P: Applies all 3 axes using Euler angles
+                if (modKeyPressed && Input.GetKeyDown((KeyCode)keyApplyEuler))
                 {
                     //Trace("Applying part rotation");
                     Vector3 incAngles;
                     incAngles.x = GetSingleOrZero(sIncPitch);
                     incAngles.y = GetSingleOrZero(sIncRoll);
                     incAngles.z = GetSingleOrZero(sIncYaw);
-                    editor.partRotation = Quaternion.Euler(eulerAngles + incAngles);
+                    EditorLogic.SelectedPart.attRotation = Quaternion.Euler(eulerAngles + incAngles);
                 }
 
                 // WASDQE           Undo core rotation of 90 and apply our rotation of sPlainRotate
@@ -339,72 +365,72 @@ namespace PartAngleDisplay
                 {
                     if (relativeRotate)
                     {
-                        incPitch = shiftKeyPressed ? 5f : -90f;
-                        relPitch = shiftKeyPressed ? -GetSingleOrZero(sIncFine) : -(altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
+                        incPitch = fineTweakKeyPressed ? 5f : 90f;
+                        relPitch = fineTweakKeyPressed ? -GetSingleOrZero(sIncFine) : -(veryFineTweakKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incPitch = shiftKeyPressed ? 5f - GetSingleOrZero(sIncFine) : -90f - (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
+                        incPitch = fineTweakKeyPressed ? 5f - GetSingleOrZero(sIncFine) : 90f - (veryFineTweakKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_pitchUp.GetKeyDown())
                 {
                     if (relativeRotate)
                     {
-                        incPitch = shiftKeyPressed ? -5f : 90f;
-                        relPitch = shiftKeyPressed ? GetSingleOrZero(sIncFine) : (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
+                        incPitch = fineTweakKeyPressed ? -5f : -90f;
+                        relPitch = fineTweakKeyPressed ? GetSingleOrZero(sIncFine) : (veryFineTweakKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incPitch = shiftKeyPressed ? GetSingleOrZero(sIncFine) - 5f : 90f + (altKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
+                        incPitch = fineTweakKeyPressed ? GetSingleOrZero(sIncFine) - 5f : -90f + (veryFineTweakKeyPressed ? GetSingleOrZero(sIncPitch) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_yawLeft.GetKeyDown())
                 {
                     if (relativeRotate)
                     {
-                        incYaw = shiftKeyPressed ? -5f : -90f;
-                        relYaw = shiftKeyPressed ? GetSingleOrZero(sIncFine) : (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
+                        incYaw = fineTweakKeyPressed ? -5f : -90f;
+                        relYaw = fineTweakKeyPressed ? GetSingleOrZero(sIncFine) : (veryFineTweakKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incYaw = shiftKeyPressed ? GetSingleOrZero(sIncFine) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
+                        incYaw = fineTweakKeyPressed ? GetSingleOrZero(sIncFine) - 5f : -90f + (veryFineTweakKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_yawRight.GetKeyDown())
                 {
                     if (relativeRotate)
                     {
-                        incYaw = shiftKeyPressed ? 5f : 90f;
-                        relYaw = shiftKeyPressed ? -GetSingleOrZero(sIncFine) : -(altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
+                        incYaw = fineTweakKeyPressed ? 5f : 90f;
+                        relYaw = fineTweakKeyPressed ? -GetSingleOrZero(sIncFine) : -(veryFineTweakKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incYaw = shiftKeyPressed ? 5f - GetSingleOrZero(sIncFine) : 90f - (altKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
+                        incYaw = fineTweakKeyPressed ? 5f - GetSingleOrZero(sIncFine) : 90f - (veryFineTweakKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_rollLeft.GetKeyDown())
                 {
                     if (relativeRotate)
                     {
-                        incRoll = shiftKeyPressed ? -5f : -90f;
-                        relRoll = shiftKeyPressed ? GetSingleOrZero(sIncFine) : (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
+                        incRoll = fineTweakKeyPressed ? -5f : -90f;
+                        relRoll = fineTweakKeyPressed ? GetSingleOrZero(sIncFine) : (veryFineTweakKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incRoll = shiftKeyPressed ? GetSingleOrZero(sIncFine) - 5f : -90f + (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
+                        incRoll = fineTweakKeyPressed ? GetSingleOrZero(sIncFine) - 5f : -90f + (veryFineTweakKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
                     }
                 }
                 else if (GameSettings.Editor_rollRight.GetKeyDown())
                 {
                     if (relativeRotate)
                     {
-                        incRoll = shiftKeyPressed ? 5f : 90f;
-                        relRoll = shiftKeyPressed ? -GetSingleOrZero(sIncFine) : -(altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
+                        incRoll = fineTweakKeyPressed ? 5f : 90f;
+                        relRoll = fineTweakKeyPressed ? -GetSingleOrZero(sIncFine) : -(veryFineTweakKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
                     }
                     else
                     {
-                        incRoll = shiftKeyPressed ? 5f - GetSingleOrZero(sIncFine) : 90f - (altKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
+                        incRoll = fineTweakKeyPressed ? 5f - GetSingleOrZero(sIncFine) : 90f - (veryFineTweakKeyPressed ? GetSingleOrZero(sIncRoll) : GetSingleOrZero(sIncCoarse));
                     }
                 }
 
@@ -416,26 +442,30 @@ namespace PartAngleDisplay
         private void ApplyIncrements(float incPitch, float incYaw, float incRoll)
         {
             bool isVAB = HighLogic.LoadedScene == GameScenes.EDITOR;
+            Part part = EditorLogic.SelectedPart;
+            if (part == null)
+                return;
+
             if (incPitch != 0f)
             {
                 //Trace("Applying pitch of " + incPitch);
                 Quaternion qPitch = Quaternion.AngleAxis(incPitch, Vector3.left);
                 //Trace("quaternion = " + qPitch.ToString());
-                editor.partRotation = qPitch * editor.partRotation;
+                part.attRotation = qPitch * part.attRotation;
             }
             if (incYaw != 0f)
             {
                 //Trace("Applying yaw of " + incYaw);
-                Quaternion qYaw = Quaternion.AngleAxis(incYaw, isVAB ? Vector3.forward : Vector3.down);
+                Quaternion qYaw = Quaternion.AngleAxis(incYaw, Vector3.forward);
                 //Trace("quaternion = " + qYaw.ToString());
-                editor.partRotation = qYaw * editor.partRotation;
+                part.attRotation = qYaw * part.attRotation;
             }
             if (incRoll != 0f)
             {
                 //Trace("Applying roll of " + incRoll);
-                Quaternion qRoll = Quaternion.AngleAxis(incRoll, isVAB ? Vector3.up : Vector3.forward);
+                Quaternion qRoll = Quaternion.AngleAxis(incRoll, Vector3.up);
                 //Trace("quaternion = " + qRoll.ToString());
-                editor.partRotation = qRoll * editor.partRotation;
+                part.attRotation = qRoll * part.attRotation;
             }
         }
 
@@ -445,34 +475,39 @@ namespace PartAngleDisplay
             if (part == null)
                 return;
 
+            Quaternion baseRot = part.attRotation0;
+            Quaternion invBaseRot = baseRot.Inverse();
+
             if (relPitch != 0f)
             {
                 //Trace("Applying rel pitch of " + relPitch);
                 Quaternion qPitch = Quaternion.AngleAxis(-relPitch, part.transform.right);
                 //Trace("quaternion = " + qPitch.ToString());
-                editor.partRotation = qPitch * editor.partRotation;
+                part.attRotation = invBaseRot * qPitch * baseRot * part.attRotation;
             }
             if (relYaw != 0f)
             {
                 //Trace("Applying rel yaw of " + relYaw);
+                //Quaternion qYaw = Quaternion.AngleAxis(relYaw, isVAB ? part.transform.forward : -part.transform.up);
                 Quaternion qYaw = Quaternion.AngleAxis(relYaw, part.transform.forward);
                 //Trace("quaternion = " + qYaw.ToString());
-                editor.partRotation = qYaw * editor.partRotation;
+                part.attRotation = invBaseRot * qYaw * baseRot * part.attRotation;
             }
             if (relRoll != 0f)
             {
                 //Trace("Applying roll of " + relRoll);
+                //Quaternion qRoll = Quaternion.AngleAxis(relRoll, isVAB ? part.transform.up : part.transform.forward);
                 Quaternion qRoll = Quaternion.AngleAxis(relRoll, part.transform.up);
                 //Trace("quaternion = " + qRoll.ToString());
-                editor.partRotation = qRoll * editor.partRotation;
+                part.attRotation = invBaseRot * qRoll * baseRot * part.attRotation;
             }
         }
 
-        private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool altDown, ref string incValue)
+        private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool modDown, ref string incValue)
         {
             if (keyCode != (Int32)KeyCode.None && Input.GetKeyDown((KeyCode)keyCode))
             {
-                if (altDown)
+                if (modDown)
                     incValue = "5.0";
                 else if (shiftDown)
                     incValue = IncreaseRotate(incValue);
@@ -662,5 +697,28 @@ namespace PartAngleDisplay
         {
             print("[PAD] " + message);
         }
+/*
+        private void DumpInfo()
+        {
+            Trace("vesselRotation = " + EditorLogic.VesselRotation);
+            //float dot = Quaternion.Dot(EditorLogic.VesselRotation, Quaternion.identity);
+            //bool isVAB = (dot == 1f);
+            //Trace("dot = " + dot);
+
+            Part part = EditorLogic.SelectedPart;
+            if (part)
+            {
+                Trace("part.attRotation = " + part.attRotation);
+                Trace("part.attRotation0 = " + part.attRotation0);
+                Trace("part.transform.rotation = " + part.transform.rotation);
+
+                Part parent = part.parent;
+                if (parent)
+                {
+                    Trace("parent.transform.rotation = " + parent.transform.rotation);
+                }
+            }
+        }
+ */
     }
 }
