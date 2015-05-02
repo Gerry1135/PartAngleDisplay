@@ -108,7 +108,7 @@ namespace PartAngleDisplay
 
             InitStyles();
 
-            WindowTitle = "Part Angle Display (0.3.0.0)";
+            WindowTitle = "Part Angle Display (0.3.0.1)";
             WindowRect = new Rect(300, 200, 200, 50);
             WindowID = Guid.NewGuid().GetHashCode();
 
@@ -338,7 +338,8 @@ namespace PartAngleDisplay
                     ToggleWindow();
                 }
             }
-            else if (editor.EditorConstructionMode == ConstructionMode.Place)
+            else if (editor.EditorConstructionMode == ConstructionMode.Place ||
+                editor.EditorConstructionMode == ConstructionMode.Rotate)
             {
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
                 // Mod-P: Applies all 3 axes using Euler angles

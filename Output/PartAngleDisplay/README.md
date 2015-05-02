@@ -21,12 +21,19 @@ Version 0.2.4.4 added support for both the stock and Blizzy's toolbars.  The use
 
 Version 0.3.0.0 for KSP 0.90 has had to change quite a few things.  The key to cycle the fine angle increment now defaults to G because the stock editor uses F.  The normal angle increment can be cycled using B.  The modifier key for the WASDQE keys to use the separate axis increment values now defaults to Ctrl as Mod is used to disable surface attachment which would make it impossible to adjust surface attached parts in place.
 
+Version 0.3.0.1 for KSP 1.0.2 is simply a recompile for the new version and a minor bug fix.
+
 Change Log
 ==========
+	02/05/2015 18:05 GMT   Updated for KSP 1.0.2
+                           Fixed rotation in rotate mode to match stock behaviour
+						   Updated to version 0.3.0.1
+
 	16/12/2014 14:38 GMT   Updated for KSP 0.90
                            Changed fine increment cycling key to G (configurable)
 						   Added normal increment cycling key of B (configurable)
 						   Changed Mod-WASDQE to Ctrl-WASDQE (configurable)
+						   Updated to version 0.3.0.0
 
 	12/08/2014 19:50 GMT   Fixed yaw and roll controls when editor mode is changed using Editor Extensions
                            Updated to version 0.2.4.5
