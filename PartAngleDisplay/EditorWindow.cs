@@ -24,6 +24,8 @@ using System;
 using System.Reflection;
 using UnityEngine;
 using KSP.IO;
+using KSP.UI;
+using KSP.UI.Screens;
 
 namespace PartAngleDisplay
 {
@@ -681,9 +683,9 @@ namespace PartAngleDisplay
         {
             if (buttonAppLaunch != null)
             {
-                if (_Visible && buttonAppLaunch.State == RUIToggleButton.ButtonState.FALSE)
+				if (_Visible && buttonAppLaunch.toggleButton.CurrentState == UIRadioButton.State.False)
                     buttonAppLaunch.SetTrue(false);
-                else if (!_Visible && buttonAppLaunch.State == RUIToggleButton.ButtonState.TRUE)
+                else if (!_Visible && buttonAppLaunch.toggleButton.CurrentState == UIRadioButton.State.True)
                     buttonAppLaunch.SetFalse(false);
             }
         }
