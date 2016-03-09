@@ -83,17 +83,7 @@ namespace PartAngleDisplay
         public Boolean Visible
         {
             get { return _Visible; }
-            set
-            {
-                if (_Visible != value)
-                {
-                    if (value)
-                        RenderingManager.AddToPostDrawQueue(5, DoPostDraw);
-                    else
-                        RenderingManager.RemoveFromPostDrawQueue(5, DoPostDraw);
-                }
-                _Visible = value;
-            }
+            set { _Visible = value; }
         }
 
         private void ToggleWindow()
@@ -519,7 +509,7 @@ namespace PartAngleDisplay
             }
         }
 
-        private void DoPostDraw()
+        private void OnGUI()
         {
             if (Visible)
                 WindowRect = GUILayout.Window(WindowID, WindowRect, Window, WindowTitle, windowStyle);
