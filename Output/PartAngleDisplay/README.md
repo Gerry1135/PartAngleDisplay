@@ -1,7 +1,7 @@
 PartAngleDisplay
 ================
 
-This is a simple KSP plugin that allows you to surface attach parts at accurate angles.
+This is a simple KSP plugin that allows you to surface attach parts at accurate angles.  To install, simply copy the PartAngleDisplay folder from the zip file into the GameData folder in your KSP installation.
 
 Simply put, the plugin allows you to display a small window in the VAB/SPH that displays the orientation of the currently selected part as pitch, roll and yaw angles and it also allows you to enter increment values for the pitch, roll and yaw and to apply these to the selected part.
 
@@ -23,8 +23,13 @@ Version 0.3.0.0 for KSP 0.90 has had to change quite a few things.  The key to c
 
 Version 0.3.0.1 for KSP 1.0.2 is simply a recompile for the new version and a minor bug fix.
 
+Version 0.3.1.0 for KSP 1.1 has been significantly refactored to simplify it and fix the part relative rotation that has been broken since the editor changes in KSP 0.90.
+
 Change Log
 ==========
+	09/03/2016 18:32 GMT   Updated for KSP 1.1
+                           Refactored rotation application to fix part relative rotation
+
 	02/05/2015 18:05 GMT   Updated for KSP 1.0.2
                            Fixed rotation in rotate mode to match stock behaviour
 						   Updated to version 0.3.0.1
