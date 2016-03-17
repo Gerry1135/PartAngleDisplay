@@ -32,9 +32,9 @@ namespace PartAngleDisplay
     [KSPAddon(KSPAddon.Startup.EditorAny, false)]
     public class EditorWindow : MonoBehaviour
     {
-		LogMsg Log = new LogMsg();
+        LogMsg Log = new LogMsg();
 
-		Int32 WindowID;
+        Int32 WindowID;
         String WindowTitle;
         Rect WindowRect;
         ApplicationLauncherButton buttonAppLaunch = null;
@@ -46,18 +46,18 @@ namespace PartAngleDisplay
         GUIStyle dataStyle;
         GUIStyle badDataStyle;
         GUIStyle buttonStyle;
-		GUILayoutOption gloWidth20;
-		GUILayoutOption gloWidth40;
-		GUILayoutOption gloWidth60;
+        GUILayoutOption gloWidth20;
+        GUILayoutOption gloWidth40;
+        GUILayoutOption gloWidth60;
 
-		Vector3 eulerAngles;    // The current part rotation angles
+        Vector3 eulerAngles;    // The current part rotation angles
 
-		Part selPartUpdate;
-		Quaternion attRotationUpdate;
-		float rotVal;
-		Vector3 rotAxis;
-	
-		String sPitch = "0.0";
+        Part selPartUpdate;
+        Quaternion attRotationUpdate;
+        float rotVal;
+        Vector3 rotAxis;
+
+        String sPitch = "0.0";
         String sRoll = "0.0";
         String sYaw = "0.0";
         String sIncPitch = "0.0";
@@ -90,7 +90,7 @@ namespace PartAngleDisplay
         {
             //Trace("EditorWindow.EditorWindow");
             //Trace("ApplicationLauncher is " + (ApplicationLauncher.Ready ? "" : "not ") + "ready");
-			//Log.Flush();
+            //Log.Flush();
         }
 
         public Boolean Visible
@@ -111,15 +111,15 @@ namespace PartAngleDisplay
 
             editor = EditorLogic.fetch;
 
-			CreateUIObjects();
+            CreateUIObjects();
 
             WindowTitle = "Part Angle Display (0.3.1.0)";
             WindowRect = new Rect(300, 200, 200, 50);
             WindowID = Guid.NewGuid().GetHashCode();
 
             LoadConfig();
-			Log.Flush();
-		}
+            Log.Flush();
+        }
 
         public void Start()
         {
@@ -136,8 +136,8 @@ namespace PartAngleDisplay
             }
 
             Visible = startVisible;
-			Log.Flush();
-		}
+            Log.Flush();
+        }
 
         void OnDestroy()
         {
@@ -157,8 +157,8 @@ namespace PartAngleDisplay
                 buttonToolbar.Destroy();
                 buttonToolbar = null;
             }
-			Log.Flush();
-		}
+            Log.Flush();
+        }
 
         // Simple, hardwired config
         public void LoadConfig()
@@ -262,18 +262,18 @@ namespace PartAngleDisplay
                 variable = keyCode;
         }
 
-		public void LateUpdate()
-		{
-			if (selPartUpdate != null && rotVal != 0f)
-			{
-				//Log.buf.AppendLine("Applying rotation of " + rotVal + " around " + rotAxis.ToString());
-				selPartUpdate.attRotation = Quaternion.AngleAxis(rotVal, rotAxis) * attRotationUpdate;
-				//Log.buf.AppendLine("rot after  = " + selPartUpdate.attRotation.ToString());
-				GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, selPartUpdate);
-				//Log.buf.AppendLine("rot event  = " + selPartUpdate.attRotation.ToString());
-				//Log.Flush();
-			}
-		}
+        public void LateUpdate()
+        {
+            if (selPartUpdate != null && rotVal != 0f)
+            {
+                //Log.buf.AppendLine("Applying rotation of " + rotVal + " around " + rotAxis.ToString());
+                selPartUpdate.attRotation = Quaternion.AngleAxis(rotVal, rotAxis) * attRotationUpdate;
+                //Log.buf.AppendLine("rot after  = " + selPartUpdate.attRotation.ToString());
+                GameEvents.onEditorPartEvent.Fire(ConstructionEventType.PartRotated, selPartUpdate);
+                //Log.buf.AppendLine("rot event  = " + selPartUpdate.attRotation.ToString());
+                //Log.Flush();
+            }
+        }
 
         public void Update()
         {
@@ -306,7 +306,7 @@ namespace PartAngleDisplay
 
             SetAppLaunchState();
             SetToolbarState();
-            
+
             editor = EditorLogic.fetch;
             if (editor == null)
                 return;
@@ -317,17 +317,17 @@ namespace PartAngleDisplay
             Part part = EditorLogic.SelectedPart;
 
             // Update our values
-			if (part != null)
-			{
-				selPartUpdate = part;
-				attRotationUpdate = part.attRotation;
-				eulerAngles = part.attRotation.eulerAngles;
-			}
-			else
-			{
-				selPartUpdate = null;
-				eulerAngles = Vector3.zero;
-			}
+            if (part != null)
+            {
+                selPartUpdate = part;
+                attRotationUpdate = part.attRotation;
+                eulerAngles = part.attRotation.eulerAngles;
+            }
+            else
+            {
+                selPartUpdate = null;
+                eulerAngles = Vector3.zero;
+            }
 
             sPitch = eulerAngles.x.ToString("0.00");
             sRoll = eulerAngles.y.ToString("0.00");
@@ -363,7 +363,7 @@ namespace PartAngleDisplay
             {
                 if (!Visible)
                     return;
-                
+
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
                 // Mod-P: Applies all 3 axes using Euler angles
                 if (modKeyPressed && Input.GetKeyDown((KeyCode)keyApplyEuler))
@@ -377,12 +377,12 @@ namespace PartAngleDisplay
                 }
 
                 // Work out what rotation we want and store it for application in LateUpdate
-				// WASDQE           Apply our rotation of sPlainRotate
-				// Shift-WASDQE     Apply our rotation of sShiftRotate
-				// Mod-WASDQE       Apply our rotation of sIncPitch/Yaw/Roll
-				rotVal = 0f;
-				rotAxis = Vector3.zero;
-				if (GameSettings.Editor_yawLeft.GetKeyDown())
+                // WASDQE           Apply our rotation of sPlainRotate
+                // Shift-WASDQE     Apply our rotation of sShiftRotate
+                // Mod-WASDQE       Apply our rotation of sIncPitch/Yaw/Roll
+                rotVal = 0f;
+                rotAxis = Vector3.zero;
+                if (GameSettings.Editor_yawLeft.GetKeyDown())
                 {
                     rotVal = fineTweakKeyPressed ? GetSingleOrZero(sIncFine) : (veryFineTweakKeyPressed ? GetSingleOrZero(sIncYaw) : GetSingleOrZero(sIncCoarse));
                     rotAxis = relativeRotate ? part.transform.forward : Vector3.forward;
@@ -413,7 +413,7 @@ namespace PartAngleDisplay
                     rotAxis = relativeRotate ? part.transform.right : Vector3.right;
                 }
             }
-			Log.Flush();
+            Log.Flush();
         }
 
         private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool modDown, ref string incValue)
@@ -445,19 +445,19 @@ namespace PartAngleDisplay
             GUILayout.Label("Pitch", labelStyle);
             GUILayout.Label(eulerAngles.x.ToString("0.00"), dataStyle, gloWidth40);
             GUILayout.EndHorizontal();
-            
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("Roll", labelStyle);
             GUILayout.Label((isVAB ? eulerAngles.y : eulerAngles.z).ToString("0.00"), dataStyle, gloWidth40);
             GUILayout.EndHorizontal();
-            
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("Yaw", labelStyle);
             GUILayout.Label((isVAB ? eulerAngles.z : eulerAngles.y).ToString("0.00"), dataStyle, gloWidth40);
             GUILayout.EndHorizontal();
-            
+
             GUILayout.BeginHorizontal();
-			GUILayout.Label("Pitch +/-", labelStyle, gloWidth60);
+            GUILayout.Label("Pitch +/-", labelStyle, gloWidth60);
             if (GUILayout.Button("x", buttonStyle, gloWidth20))
                 sIncPitch = "0.0";
             sIncPitch = GUILayout.TextField(sIncPitch, 7, GetDataStyle(sIncPitch));
@@ -469,14 +469,14 @@ namespace PartAngleDisplay
                 sIncRoll = "0.0";
             sIncRoll = GUILayout.TextField(sIncRoll, 7, GetDataStyle(sIncRoll));
             GUILayout.EndHorizontal();
-            
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("Yaw +/-", labelStyle, gloWidth60);
             if (GUILayout.Button("x", buttonStyle, gloWidth20))
                 sIncYaw = "0.0";
             sIncYaw = GUILayout.TextField(sIncYaw, 7, GetDataStyle(sIncYaw));
             GUILayout.EndHorizontal();
-            
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("Rotation", labelStyle, gloWidth60);
             if (GUILayout.Button("<", buttonStyle, gloWidth20))
@@ -485,7 +485,7 @@ namespace PartAngleDisplay
                 sIncCoarse = DecreaseRotate(sIncCoarse);
             sIncCoarse = GUILayout.TextField(sIncCoarse, 7, GetDataStyle(sIncCoarse));
             GUILayout.EndHorizontal();
-            
+
             GUILayout.BeginHorizontal();
             GUILayout.Label("Fine", labelStyle, gloWidth60);
             if (GUILayout.Button("<", buttonStyle, gloWidth20))
@@ -499,7 +499,7 @@ namespace PartAngleDisplay
             GUILayout.Label("Part-relative", labelStyle);
             relativeRotate = GUILayout.Toggle(relativeRotate, "", buttonStyle);
             GUILayout.EndHorizontal();
-            
+
             GUILayout.EndVertical();
 
             GUI.DragWindow();
@@ -588,16 +588,16 @@ namespace PartAngleDisplay
                 border = new RectOffset(1, 0, 0, 0)
             };
 
-			gloWidth20 = GUILayout.Width(20);
-			gloWidth40 = GUILayout.Width(40);
-			gloWidth60 = GUILayout.Width(60);
-		}
+            gloWidth20 = GUILayout.Width(20);
+            gloWidth40 = GUILayout.Width(40);
+            gloWidth60 = GUILayout.Width(60);
+        }
 
         private void SetAppLaunchState()
         {
             if (buttonAppLaunch != null)
             {
-				if (_Visible && buttonAppLaunch.toggleButton.CurrentState == UIRadioButton.State.False)
+                if (_Visible && buttonAppLaunch.toggleButton.CurrentState == UIRadioButton.State.False)
                     buttonAppLaunch.SetTrue(false);
                 else if (!_Visible && buttonAppLaunch.toggleButton.CurrentState == UIRadioButton.State.True)
                     buttonAppLaunch.SetFalse(false);
