@@ -318,20 +318,27 @@ namespace PartAngleDisplay
 
             Part part = EditorLogic.SelectedPart;
 
-            // Update our values
-            Vector3 oldAngles = eulerAngles;    // The current part rotation angles
+            // Remember the previous values
+            Vector3 oldAngles = eulerAngles;
+
+            // Get the current values and remember the part and current rotation for use in LateUpdate
             if (part != null)
             {
                 selPartUpdate = part;
                 attRotationUpdate = part.attRotation;
+
+                // TODO: Get this from a different place in rotate mode and allow it to 
+                // show building relative angles in place mode
                 eulerAngles = part.attRotation.eulerAngles;
             }
             else
             {
+                // No part selected so show zeros
                 selPartUpdate = null;
                 eulerAngles = Vector3.zero;
             }
 
+            // Only update the angle strings if the values have changed
             if (eulerAngles.x != oldAngles.x)
                 sPitch = eulerAngles.x.ToString("0.00");
             if (eulerAngles.y != oldAngles.y)
@@ -345,7 +352,7 @@ namespace PartAngleDisplay
             bool veryFineTweakKeyPressed = Input.GetKey((KeyCode)keyVeryFineMod);
             bool modKeyPressed = GameSettings.MODIFIER_KEY.GetKey();
 
-            if (editor.EditorConstructionMode == ConstructionMode.Place)
+            if (ShouldRotateKeysWork())
             {
                 // G/Shift-G/Mod-G  decrease/increase/reset rotation angle
                 HandleCycleKey(keyCycleRotate, fineTweakKeyPressed, modKeyPressed, ref sIncCoarse);
@@ -364,8 +371,7 @@ namespace PartAngleDisplay
                     ToggleWindow();
                 }
             }
-            else if (editor.EditorConstructionMode == ConstructionMode.Place ||
-                editor.EditorConstructionMode == ConstructionMode.Rotate)
+            else if (ShouldRotateKeysWork())
             {
                 if (!Visible)
                     return;
@@ -420,6 +426,12 @@ namespace PartAngleDisplay
                 }
             }
             Log.Flush();
+        }
+
+        private bool ShouldRotateKeysWork()
+        {
+            return (editor.EditorConstructionMode == ConstructionMode.Place);
+            //editor.EditorConstructionMode == ConstructionMode.Rotate
         }
 
         private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool modDown, ref String incValue)
