@@ -35,7 +35,6 @@ namespace PartAngleDisplay
         LogMsg Log = new LogMsg();
 
         Int32 WindowID;
-        String WindowTitle;
         Rect WindowRect;
         ApplicationLauncherButton buttonAppLaunch = null;
         IButton buttonToolbar = null;
@@ -78,12 +77,13 @@ namespace PartAngleDisplay
         Int32 keyVeryFineMod = (Int32)KeyCode.LeftControl;
 
         static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
+        static String[] angleCycleStr = { "0.01", "0.10", "1.00", "5.00", "10.00", "15.00", "30.00", "45.00", "60.00", "72.00", "90.00", "120.00" };
         static Texture2D texAppLaunch;
 
-        const string configFilename = "settings.cfg";
-        const string pathToolbarDisabled = "PartAngleDisplay/toolbaroff";
-        const string pathToolbarEnabled = "PartAngleDisplay/toolbaron";
         const String WindowTitle = "Part Angle Display (0.3.1.1)";
+        const String configFilename = "settings.cfg";
+        const String pathToolbarDisabled = "PartAngleDisplay/toolbaroff";
+        const String pathToolbarEnabled = "PartAngleDisplay/toolbaron";
 
         private Boolean _Visible = false;
 
@@ -165,15 +165,15 @@ namespace PartAngleDisplay
         {
             if (File.Exists<EditorWindow>(configFilename))
             {
-                string[] lines = File.ReadAllLines<EditorWindow>(configFilename);
+                String[] lines = File.ReadAllLines<EditorWindow>(configFilename);
 
                 for (int i = 0; i < lines.Length; i++)
                 {
-                    string[] line = lines[i].Split('=');
+                    String[] line = lines[i].Split('=');
                     if (line.Length == 2)
                     {
-                        string key = line[0].Trim();
-                        string val = line[1].Trim();
+                        String key = line[0].Trim();
+                        String val = line[1].Trim();
                         if (key == "visible")
                             ReadBool(val, ref startVisible);
                         else if (key == "incPitch")
@@ -192,7 +192,7 @@ namespace PartAngleDisplay
                             ReadBool(val, ref absoluteAngles);
                         else if (key == "windowPos")
                         {
-                            string[] vals = val.Split(',');
+                            String[] vals = val.Split(',');
                             if (vals.Length == 4)
                             {
                                 WindowRect.x = Convert.ToSingle(vals[0].Trim());
@@ -247,7 +247,7 @@ namespace PartAngleDisplay
             file.Close();
         }
 
-        void ReadBool(string val, ref bool variable)
+        void ReadBool(String val, ref bool variable)
         {
             if (val == "true")
                 variable = true;
@@ -255,7 +255,7 @@ namespace PartAngleDisplay
                 variable = false;
         }
 
-        void ReadKeyCode(string val, ref Int32 variable)
+        void ReadKeyCode(String val, ref Int32 variable)
         {
             Int32 keyCode = 0;
             if (Int32.TryParse(val, out keyCode))
@@ -307,6 +307,8 @@ namespace PartAngleDisplay
             SetAppLaunchState();
             SetToolbarState();
 
+            // Main Update code starts here
+
             editor = EditorLogic.fetch;
             if (editor == null)
                 return;
@@ -317,6 +319,7 @@ namespace PartAngleDisplay
             Part part = EditorLogic.SelectedPart;
 
             // Update our values
+            Vector3 oldAngles = eulerAngles;    // The current part rotation angles
             if (part != null)
             {
                 selPartUpdate = part;
@@ -329,9 +332,12 @@ namespace PartAngleDisplay
                 eulerAngles = Vector3.zero;
             }
 
-            sPitch = eulerAngles.x.ToString("0.00");
-            sRoll = eulerAngles.y.ToString("0.00");
-            sYaw = eulerAngles.z.ToString("0.00");
+            if (eulerAngles.x != oldAngles.x)
+                sPitch = eulerAngles.x.ToString("0.00");
+            if (eulerAngles.y != oldAngles.y)
+                sRoll = eulerAngles.y.ToString("0.00");
+            if (eulerAngles.z != oldAngles.z)
+                sYaw = eulerAngles.z.ToString("0.00");
 
             // Key handling
             // Get the state of the shift key and the configured modifier keys
@@ -416,7 +422,7 @@ namespace PartAngleDisplay
             Log.Flush();
         }
 
-        private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool modDown, ref string incValue)
+        private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool modDown, ref String incValue)
         {
             if (keyCode != (Int32)KeyCode.None && Input.GetKeyDown((KeyCode)keyCode))
             {
@@ -443,17 +449,17 @@ namespace PartAngleDisplay
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Pitch", labelStyle);
-            GUILayout.Label(eulerAngles.x.ToString("0.00"), dataStyle, gloWidth40);
+            GUILayout.Label(sPitch, dataStyle, gloWidth40);
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Roll", labelStyle);
-            GUILayout.Label((isVAB ? eulerAngles.y : eulerAngles.z).ToString("0.00"), dataStyle, gloWidth40);
+            GUILayout.Label((isVAB ? sRoll : sYaw), dataStyle, gloWidth40);
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
             GUILayout.Label("Yaw", labelStyle);
-            GUILayout.Label((isVAB ? eulerAngles.z : eulerAngles.y).ToString("0.00"), dataStyle, gloWidth40);
+            GUILayout.Label((isVAB ? sYaw : sRoll), dataStyle, gloWidth40);
             GUILayout.EndHorizontal();
 
             GUILayout.BeginHorizontal();
@@ -512,11 +518,11 @@ namespace PartAngleDisplay
             for (int i = 0; i < angleCycle.Length; i++)
             {
                 if (angleCycle[i] > angle)
-                    return angleCycle[i].ToString("0.00");
+                    return angleCycleStr[i];
             }
 
             // Nothing larger so go back to the start
-            return angleCycle[0].ToString("0.00");
+            return angleCycleStr[0];
         }
 
         private String DecreaseRotate(String sAngle)
@@ -526,11 +532,11 @@ namespace PartAngleDisplay
             for (int i = angleCycle.Length - 1; i >= 0; i--)
             {
                 if (angleCycle[i] < angle)
-                    return angleCycle[i].ToString("0.00");
+                    return angleCycleStr[i];
             }
 
             // Nothing larger so go back to the start
-            return angleCycle[angleCycle.Length - 1].ToString("0.00");
+            return angleCycleStr[angleCycle.Length - 1];
         }
 
         private GUIStyle GetDataStyle(String str)
