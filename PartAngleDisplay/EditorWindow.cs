@@ -83,6 +83,7 @@ namespace PartAngleDisplay
         const string configFilename = "settings.cfg";
         const string pathToolbarDisabled = "PartAngleDisplay/toolbaroff";
         const string pathToolbarEnabled = "PartAngleDisplay/toolbaron";
+        const String WindowTitle = "Part Angle Display (0.3.1.1)";
 
         private Boolean _Visible = false;
 
@@ -113,7 +114,6 @@ namespace PartAngleDisplay
 
             CreateUIObjects();
 
-            WindowTitle = "Part Angle Display (0.3.1.0)";
             WindowRect = new Rect(300, 200, 200, 50);
             WindowID = Guid.NewGuid().GetHashCode();
 
