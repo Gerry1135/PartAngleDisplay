@@ -373,9 +373,6 @@ namespace PartAngleDisplay
             }
             else if (ShouldRotateKeysWork())
             {
-                if (!Visible)
-                    return;
-
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
                 // Mod-P: Applies all 3 axes using Euler angles
                 if (modKeyPressed && Input.GetKeyDown((KeyCode)keyApplyEuler))
@@ -431,7 +428,6 @@ namespace PartAngleDisplay
         private bool ShouldRotateKeysWork()
         {
             return (editor.EditorConstructionMode == ConstructionMode.Place);
-            //editor.EditorConstructionMode == ConstructionMode.Rotate
         }
 
         private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool modDown, ref String incValue)
