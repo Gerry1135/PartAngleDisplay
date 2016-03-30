@@ -25,10 +25,17 @@ Version 0.3.0.1 for KSP 1.0.2 is simply a recompile for the new version and a mi
 
 Version 0.3.1.0 for KSP 1.1 has been significantly refactored to simplify it and fix the part relative rotation that has been broken since the editor changes in KSP 0.90.
 
+Version 0.3.1.1 for KSP 1.1 enables the part rotation keys when the dialog is closed making it usable without ever opening the UI.
+
 Change Log
 ==========
+	30/03/2016 19:08 GMT   Enabled rotation controls when dialog is closed
+	                       More garbage reduction
+						   Updated to version 0.3.1.1
+
 	09/03/2016 16:32 GMT   Updated for KSP 1.1
                            Refactored rotation application to fix part relative rotation
+						   Updated to version 0.3.1.0
 
 	02/05/2015 18:05 GMT   Updated for KSP 1.0.2
                            Fixed rotation in rotate mode to match stock behaviour
