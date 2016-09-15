@@ -27,8 +27,12 @@ Version 0.3.1.0 for KSP 1.1 has been significantly refactored to simplify it and
 
 Version 0.3.1.1 for KSP 1.1 enables the part rotation keys when the dialog is closed making it usable without ever opening the UI.
 
+Version 0.3.2.0 for KSP 1.2 is a straight recompile.
+
 Change Log
 ==========
+	15/09/2016 12:33 GMT   Rebuilt for KSP 1.2
+
 	30/03/2016 19:08 GMT   Enabled rotation controls when dialog is closed
 	                       More garbage reduction
 						   Updated to version 0.3.1.1
