@@ -29,8 +29,12 @@ Version 0.3.1.1 for KSP 1.1 enables the part rotation keys when the dialog is cl
 
 Version 0.3.2.0 for KSP 1.2 is a straight recompile.
 
+Version 0.3.2.1 for KSP 1.2 now stores the key bindings as strings rather than integer values.
+
 Change Log
 ==========
+	30/09/2016 09:41 GMT   Changed key binding settings to use textual KeyCode names
+
 	15/09/2016 12:33 GMT   Rebuilt for KSP 1.2
 
 	30/03/2016 19:08 GMT   Enabled rotation controls when dialog is closed
