@@ -70,11 +70,11 @@ namespace PartAngleDisplay
         bool absoluteAngles = false;
         bool useAppLaunch = true;
 
-        Int32 keyToggleWindow = (Int32)KeyCode.P;
-        Int32 keyApplyEuler = (Int32)KeyCode.P;
-        Int32 keyCycleRotate = (Int32)KeyCode.B;
-        Int32 keyCycleFine = (Int32)KeyCode.G;
-        Int32 keyVeryFineMod = (Int32)KeyCode.LeftControl;
+        KeyCode keyToggleWindow = KeyCode.P;
+        KeyCode keyApplyEuler = KeyCode.P;
+        KeyCode keyCycleRotate = KeyCode.B;
+        KeyCode keyCycleFine = KeyCode.G;
+        KeyCode keyVeryFineMod = KeyCode.LeftControl;
 
         static float[] angleCycle = { 0.01f, 0.1f, 1, 5, 10, 15, 30, 45, 60, 72, 90, 120 };
         static String[] angleCycleStr = { "0.01", "0.10", "1.00", "5.00", "10.00", "15.00", "30.00", "45.00", "60.00", "72.00", "90.00", "120.00" };
@@ -204,15 +204,15 @@ namespace PartAngleDisplay
                                 Trace("Ignoring invalid rectangle in settings: '" + lines[i] + "'");
                         }
                         else if (key == "keyToggleWindow")
-                            ReadKeyCode(val, ref keyToggleWindow);
+                            ReadKeyCode(val, ref keyToggleWindow, KeyCode.P);
                         else if (key == "keyApplyEuler")
-                            ReadKeyCode(val, ref keyApplyEuler);
+                            ReadKeyCode(val, ref keyApplyEuler, KeyCode.P);
                         else if (key == "keyCycleRotate")
-                            ReadKeyCode(val, ref keyCycleRotate);
+                            ReadKeyCode(val, ref keyCycleRotate, KeyCode.B);
                         else if (key == "keyCycleFine")
-                            ReadKeyCode(val, ref keyCycleFine);
+                            ReadKeyCode(val, ref keyCycleFine, KeyCode.G);
                         else if (key == "keyVeryFineMod")
-                            ReadKeyCode(val, ref keyVeryFineMod);
+                            ReadKeyCode(val, ref keyVeryFineMod, KeyCode.LeftControl);
                         else if (key == "useAppLaunch")
                             ReadBool(val, ref useAppLaunch);
                         else
@@ -237,11 +237,11 @@ namespace PartAngleDisplay
             file.WriteLine("relRotate = " + (relativeRotate ? "true" : "false"));
             file.WriteLine("absAngles = " + (absoluteAngles ? "true" : "false"));
             file.WriteLine("windowPos = {0:f},{1:f},{2:f},{3:f}", WindowRect.x, WindowRect.y, WindowRect.width, WindowRect.height);
-            file.WriteLine("keyToggleWindow = " + (Int32)keyToggleWindow);
-            file.WriteLine("keyApplyEuler = " + (Int32)keyApplyEuler);
-            file.WriteLine("keyCycleRotate = " + (Int32)keyCycleRotate);
-            file.WriteLine("keyCycleFine = " + (Int32)keyCycleFine);
-            file.WriteLine("keyVeryFineMod = " + (Int32)keyVeryFineMod);
+            file.WriteLine("keyToggleWindow = " + keyToggleWindow);
+            file.WriteLine("keyApplyEuler = " + keyApplyEuler);
+            file.WriteLine("keyCycleRotate = " + keyCycleRotate);
+            file.WriteLine("keyCycleFine = " + keyCycleFine);
+            file.WriteLine("keyVeryFineMod = " + keyVeryFineMod);
             file.WriteLine("useAppLaunch = " + (useAppLaunch ? "true" : "false"));
 
             file.Close();
@@ -255,11 +255,21 @@ namespace PartAngleDisplay
                 variable = false;
         }
 
-        void ReadKeyCode(String val, ref Int32 variable)
+        void ReadKeyCode(String str, ref KeyCode variable, KeyCode defValue)
         {
-            Int32 keyCode = 0;
-            if (Int32.TryParse(val, out keyCode))
-                variable = keyCode;
+            try
+            {
+                variable = (KeyCode)Enum.Parse(typeof(KeyCode), str, false);
+                Log.buf.Append("Read value of:");
+                Log.buf.AppendLine("" + variable);
+            }
+            catch (Exception exp)
+            {
+                Log.buf.Append("Unrecognised KeyCode: ");
+                Log.buf.AppendLine(str);
+                Log.buf.AppendLine(exp.ToString());
+                variable = defValue;
+            }
         }
 
         public void LateUpdate()
@@ -349,7 +359,7 @@ namespace PartAngleDisplay
             // Key handling
             // Get the state of the shift key and the configured modifier keys
             bool fineTweakKeyPressed = GameSettings.Editor_fineTweak.GetKey();
-            bool veryFineTweakKeyPressed = Input.GetKey((KeyCode)keyVeryFineMod);
+            bool veryFineTweakKeyPressed = Input.GetKey(keyVeryFineMod);
             bool modKeyPressed = GameSettings.MODIFIER_KEY.GetKey();
 
             if (ShouldRotateKeysWork())
@@ -365,7 +375,7 @@ namespace PartAngleDisplay
             // Mod-P            toggle the visible state of the window
             if (part == null)
             {
-                if (modKeyPressed && Input.GetKeyDown((KeyCode)keyToggleWindow))
+                if (modKeyPressed && Input.GetKeyDown(keyToggleWindow))
                 {
                     // Toggle the visibility
                     ToggleWindow();
@@ -375,7 +385,7 @@ namespace PartAngleDisplay
             {
                 // Otherwise we apply the relevant angle increments depending on which key was pressed
                 // Mod-P: Applies all 3 axes using Euler angles
-                if (modKeyPressed && Input.GetKeyDown((KeyCode)keyApplyEuler))
+                if (modKeyPressed && Input.GetKeyDown(keyApplyEuler))
                 {
                     //Trace("Applying part rotation");
                     Vector3 incAngles;
@@ -430,9 +440,9 @@ namespace PartAngleDisplay
             return (editor.EditorConstructionMode == ConstructionMode.Place);
         }
 
-        private void HandleCycleKey(Int32 keyCode, bool shiftDown, bool modDown, ref String incValue)
+        private void HandleCycleKey(KeyCode keyCode, bool shiftDown, bool modDown, ref String incValue)
         {
-            if (keyCode != (Int32)KeyCode.None && Input.GetKeyDown((KeyCode)keyCode))
+            if (keyCode != KeyCode.None && Input.GetKeyDown(keyCode))
             {
                 if (modDown)
                     incValue = "5.0";
