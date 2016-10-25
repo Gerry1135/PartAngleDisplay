@@ -31,11 +31,18 @@ Version 0.3.2.0 for KSP 1.2 is a straight recompile.
 
 Version 0.3.2.1 for KSP 1.2 now stores the key bindings as strings rather than integer values.
 
+Version 0.3.2.2 for KSP 1.2 fixes the loss of the toolbar button with Contract Configurator.
+
 Change Log
 ==========
+	25/10/2016 17:14 GMT   Updated to latest version of ToolbarWrapper.cs
+						   Updated to version 0.3.2.2
+
 	30/09/2016 09:41 GMT   Changed key binding settings to use textual KeyCode names
+						   Updated to version 0.3.2.1
 
 	15/09/2016 12:33 GMT   Rebuilt for KSP 1.2
+						   Updated to version 0.3.2.0
 
 	30/03/2016 19:08 GMT   Enabled rotation controls when dialog is closed
 	                       More garbage reduction
