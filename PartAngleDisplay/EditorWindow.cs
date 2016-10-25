@@ -80,7 +80,7 @@ namespace PartAngleDisplay
         static String[] angleCycleStr = { "0.01", "0.10", "1.00", "5.00", "10.00", "15.00", "30.00", "45.00", "60.00", "72.00", "90.00", "120.00" };
         static Texture2D texAppLaunch;
 
-        const String WindowTitle = "Part Angle Display (0.3.2.1)";
+        const String WindowTitle = "Part Angle Display (0.3.2.2)";
         const String configFilename = "settings.cfg";
         const String pathToolbarDisabled = "PartAngleDisplay/toolbaroff";
         const String pathToolbarEnabled = "PartAngleDisplay/toolbaron";
