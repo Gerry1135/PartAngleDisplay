@@ -34,8 +34,37 @@ namespace PartAngleDisplay
     {
         LogMsg Log = new LogMsg();
 
-        Int32 WindowID;
-        Rect WindowRect;
+        Rect rArea;
+        Rect rLabAngleP;
+        Rect rValAngleP;
+        Rect rLabAngleR;
+        Rect rValAngleR;
+        Rect rLabAngleY;
+        Rect rValAngleY;
+        Rect rLabIncP;
+        Rect rResetIncP;
+        Rect rValIncP;
+        Rect rLabIncR;
+        Rect rResetIncR;
+        Rect rValIncR;
+        Rect rLabIncY;
+        Rect rResetIncY;
+        Rect rValIncY;
+        Rect rLabRot;
+        Rect rIncRot;
+        Rect rDecRot;
+        Rect rValRot;
+        Rect rLabFine;
+        Rect rIncFine;
+        Rect rDecFine;
+        Rect rValFine;
+        Rect rLabPartRel;
+        Rect rButPartRel;
+
+        GUI.WindowFunction windowFunc = null;
+        Int32 windowID;
+        Rect windowPos;
+        Rect windowDragRect;
         ApplicationLauncherButton buttonAppLaunch = null;
         IButton buttonToolbar = null;
         EditorLogic editor;
@@ -45,9 +74,6 @@ namespace PartAngleDisplay
         GUIStyle dataStyle;
         GUIStyle badDataStyle;
         GUIStyle buttonStyle;
-        GUILayoutOption gloWidth20;
-        GUILayoutOption gloWidth40;
-        GUILayoutOption gloWidth60;
 
         Vector3 eulerAngles;    // The current part rotation angles
 
@@ -56,9 +82,9 @@ namespace PartAngleDisplay
         float rotVal;
         Vector3 rotAxis;
 
-        String sPitch = "0.0";
-        String sRoll = "0.0";
-        String sYaw = "0.0";
+        String sPitch = "0.00";
+        String sRoll = "0.00";
+        String sYaw = "0.00";
         String sIncPitch = "0.0";
         String sIncRoll = "0.0";
         String sIncYaw = "0.0";
@@ -80,7 +106,7 @@ namespace PartAngleDisplay
         static String[] angleCycleStr = { "0.01", "0.10", "1.00", "5.00", "10.00", "15.00", "30.00", "45.00", "60.00", "72.00", "90.00", "120.00" };
         static Texture2D texAppLaunch;
 
-        const String WindowTitle = "Part Angle Display (0.3.2.2)";
+        const String windowTitle = "Part Angle Display (0.3.2.3)";
         const String configFilename = "settings.cfg";
         const String pathToolbarDisabled = "PartAngleDisplay/toolbaroff";
         const String pathToolbarEnabled = "PartAngleDisplay/toolbaron";
@@ -107,15 +133,16 @@ namespace PartAngleDisplay
 
         public void Awake()
         {
-            //Trace("[PAD] EditorWindow.Awake");
+            Trace("[PAD] EditorWindow.Awake");
             //Trace("ApplicationLauncher is " + (ApplicationLauncher.Ready ? "" : "not ") + "ready");
 
             editor = EditorLogic.fetch;
 
             CreateUIObjects();
 
-            WindowRect = new Rect(300, 200, 200, 50);
-            WindowID = Guid.NewGuid().GetHashCode();
+            LayoutWindow();
+            
+            windowID = Guid.NewGuid().GetHashCode();
 
             LoadConfig();
             Log.Flush();
@@ -195,10 +222,10 @@ namespace PartAngleDisplay
                             String[] vals = val.Split(',');
                             if (vals.Length == 4)
                             {
-                                WindowRect.x = Convert.ToSingle(vals[0].Trim());
-                                WindowRect.y = Convert.ToSingle(vals[1].Trim());
-                                WindowRect.width = Convert.ToSingle(vals[2].Trim());
-                                WindowRect.height = Convert.ToSingle(vals[3].Trim());
+                                windowPos.x = Convert.ToSingle(vals[0].Trim());
+                                windowPos.y = Convert.ToSingle(vals[1].Trim());
+                                windowPos.width = Convert.ToSingle(vals[2].Trim());
+                                windowPos.height = Convert.ToSingle(vals[3].Trim());
                             }
                             else
                                 Trace("Ignoring invalid rectangle in settings: '" + lines[i] + "'");
@@ -236,7 +263,7 @@ namespace PartAngleDisplay
             file.WriteLine("incFine = " + sIncFine);
             file.WriteLine("relRotate = " + (relativeRotate ? "true" : "false"));
             file.WriteLine("absAngles = " + (absoluteAngles ? "true" : "false"));
-            file.WriteLine("windowPos = {0:f},{1:f},{2:f},{3:f}", WindowRect.x, WindowRect.y, WindowRect.width, WindowRect.height);
+            file.WriteLine("windowPos = {0:f},{1:f},{2:f},{3:f}", windowPos.x, windowPos.y, windowPos.width, windowPos.height);
             file.WriteLine("keyToggleWindow = " + keyToggleWindow);
             file.WriteLine("keyApplyEuler = " + keyApplyEuler);
             file.WriteLine("keyCycleRotate = " + keyCycleRotate);
@@ -456,77 +483,53 @@ namespace PartAngleDisplay
         private void OnGUI()
         {
             if (Visible)
-                WindowRect = GUILayout.Window(WindowID, WindowRect, Window, WindowTitle, windowStyle);
+                windowPos = GUI.Window(windowID, windowPos, windowFunc, windowTitle, windowStyle);
         }
 
-        private void Window(int windowID)
+        private void WindowGUI(int windowID)
         {
-            bool isVAB = HighLogic.LoadedScene == GameScenes.EDITOR;
+            GUI.Box(rArea, GUIContent.none, areaStyle);
+            
+            GUI.Label(rLabAngleP, "Pitch", labelStyle);
+            GUI.Label(rValAngleP, sPitch, dataStyle);
+            GUI.Label(rLabAngleR, "Roll", labelStyle);
+            GUI.Label(rValAngleR, sRoll, dataStyle);
+            GUI.Label(rLabAngleY, "Yaw", labelStyle);
+            GUI.Label(rValAngleY, sYaw, dataStyle);
 
-            GUILayout.BeginVertical(areaStyle);
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Pitch", labelStyle);
-            GUILayout.Label(sPitch, dataStyle, gloWidth40);
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Roll", labelStyle);
-            GUILayout.Label((isVAB ? sRoll : sYaw), dataStyle, gloWidth40);
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Yaw", labelStyle);
-            GUILayout.Label((isVAB ? sYaw : sRoll), dataStyle, gloWidth40);
-            GUILayout.EndHorizontal();
-
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Pitch +/-", labelStyle, gloWidth60);
-            if (GUILayout.Button("x", buttonStyle, gloWidth20))
+            GUI.Label(rLabIncP, "Pitch +/-", labelStyle);
+            if (GUI.Button(rResetIncP, "x", buttonStyle))
                 sIncPitch = "0.0";
-            sIncPitch = GUILayout.TextField(sIncPitch, 7, GetDataStyle(sIncPitch));
-            GUILayout.EndHorizontal();
+            sIncPitch = GUI.TextField(rValIncP, sIncPitch, 7, GetDataStyle(sIncPitch));
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Roll +/-", labelStyle, gloWidth60);
-            if (GUILayout.Button("x", buttonStyle, gloWidth20))
+            GUI.Label(rLabIncR, "Roll +/-", labelStyle);
+            if (GUI.Button(rResetIncR, "x", buttonStyle))
                 sIncRoll = "0.0";
-            sIncRoll = GUILayout.TextField(sIncRoll, 7, GetDataStyle(sIncRoll));
-            GUILayout.EndHorizontal();
+            sIncRoll = GUI.TextField(rValIncR, sIncRoll, 7, GetDataStyle(sIncRoll));
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Yaw +/-", labelStyle, gloWidth60);
-            if (GUILayout.Button("x", buttonStyle, gloWidth20))
+            GUI.Label(rLabIncY, "Yaw +/-", labelStyle);
+            if (GUI.Button(rResetIncY, "x", buttonStyle))
                 sIncYaw = "0.0";
-            sIncYaw = GUILayout.TextField(sIncYaw, 7, GetDataStyle(sIncYaw));
-            GUILayout.EndHorizontal();
+            sIncYaw = GUI.TextField(rValIncY, sIncYaw, 7, GetDataStyle(sIncYaw));
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Rotation", labelStyle, gloWidth60);
-            if (GUILayout.Button("<", buttonStyle, gloWidth20))
+            GUI.Label(rLabRot, "Rotation", labelStyle);
+            if (GUI.Button(rIncRot, "<", buttonStyle))
                 sIncCoarse = IncreaseRotate(sIncCoarse);
-            if (GUILayout.Button(">", buttonStyle, gloWidth20))
+            if (GUI.Button(rDecRot, ">", buttonStyle))
                 sIncCoarse = DecreaseRotate(sIncCoarse);
-            sIncCoarse = GUILayout.TextField(sIncCoarse, 7, GetDataStyle(sIncCoarse));
-            GUILayout.EndHorizontal();
+            sIncCoarse = GUI.TextField(rValRot, sIncCoarse, 7, GetDataStyle(sIncCoarse));
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Fine", labelStyle, gloWidth60);
-            if (GUILayout.Button("<", buttonStyle, gloWidth20))
+            GUI.Label(rLabFine, "Fine", labelStyle);
+            if (GUI.Button(rIncFine, "<", buttonStyle))
                 sIncFine = IncreaseRotate(sIncFine);
-            if (GUILayout.Button(">", buttonStyle, gloWidth20))
+            if (GUI.Button(rDecFine, ">", buttonStyle))
                 sIncFine = DecreaseRotate(sIncFine);
-            sIncFine = GUILayout.TextField(sIncFine, 7, GetDataStyle(sIncFine));
-            GUILayout.EndHorizontal();
+            sIncFine = GUI.TextField(rValFine, sIncFine, 7, GetDataStyle(sIncFine));
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("Part-relative", labelStyle);
-            relativeRotate = GUILayout.Toggle(relativeRotate, "", buttonStyle);
-            GUILayout.EndHorizontal();
+            GUI.Label(rLabPartRel, "Part-relative", labelStyle);
+            relativeRotate = GUI.Toggle(rButPartRel, relativeRotate, "", buttonStyle);
 
-            GUILayout.EndVertical();
-
-            GUI.DragWindow();
+            GUI.DragWindow(windowDragRect);
         }
 
         private String IncreaseRotate(String sAngle)
@@ -571,7 +574,12 @@ namespace PartAngleDisplay
 
         private void CreateUIObjects()
         {
-            windowStyle = new GUIStyle(HighLogic.Skin.window);
+            windowFunc = new GUI.WindowFunction(WindowGUI);
+
+            windowStyle = new GUIStyle(HighLogic.Skin.window)
+            {
+                fontSize = HighLogic.Skin.label.fontSize
+            };
 
             areaStyle = new GUIStyle(HighLogic.Skin.textArea);
 
@@ -579,7 +587,6 @@ namespace PartAngleDisplay
             {
                 fontStyle = FontStyle.Normal,
                 alignment = TextAnchor.MiddleLeft,
-                stretchWidth = true,
                 padding = new RectOffset(0, 0, 0, 0),
                 margin = new RectOffset(0, 0, 1, 1)
             };
@@ -588,7 +595,6 @@ namespace PartAngleDisplay
             {
                 fontStyle = FontStyle.Normal,
                 alignment = TextAnchor.MiddleRight,
-                stretchWidth = true,
                 padding = new RectOffset(0, 0, 0, 0),
                 margin = new RectOffset(0, 0, 1, 1)
             };
@@ -597,7 +603,6 @@ namespace PartAngleDisplay
             {
                 fontStyle = FontStyle.Normal,
                 alignment = TextAnchor.MiddleRight,
-                stretchWidth = true,
                 normal = { textColor = new Color(1.0f, 0.5f, 0.5f) },
                 focused = { textColor = new Color(1.0f, 0.5f, 0.5f) },
                 padding = new RectOffset(0, 0, 0, 0),
@@ -606,15 +611,77 @@ namespace PartAngleDisplay
 
             buttonStyle = new GUIStyle(HighLogic.Skin.button)
             {
-                fixedWidth = 20,
                 padding = new RectOffset(0, 0, 0, 0),
                 margin = new RectOffset(0, 0, 0, 0),
                 border = new RectOffset(1, 0, 0, 0)
             };
+        }
 
-            gloWidth20 = GUILayout.Width(20);
-            gloWidth40 = GUILayout.Width(40);
-            gloWidth60 = GUILayout.Width(60);
+        private void LayoutWindow()
+        {
+            const int TopMargin = 28;
+            const int LabelX = 12;
+            const int LabelWidth = 60;
+            const int ValueX = 128;
+            const int ValueWidth = 60;
+            const int Button1X = 70;
+            const int Button2X = 90;
+            const int LabelPartRelWidth = 100;
+            const int ButPartRelX = 168;
+            const int LabelHeight = 20;
+            const int ButtonWidth = 20;
+            const int ButtonHeight = 16;
+            const int ButtonYOff = 3;
+            const int RowHeight = 18;
+            const int WndWidth = 200;
+            const int WndHeight = 200;
+
+            windowPos.Set(300, 200, WndWidth, WndHeight);
+            windowDragRect.Set(0, 0, WndWidth, WndHeight);
+            rArea.Set(5, 27, 190, 168);
+
+            int yRow = TopMargin;
+            rLabAngleP.Set(LabelX, yRow, LabelWidth, LabelHeight);
+            rValAngleP.Set(ValueX, yRow, ValueWidth, LabelHeight);
+
+            yRow += RowHeight;
+            rLabAngleR.Set(LabelX, yRow, LabelWidth, LabelHeight);
+            rValAngleR.Set(ValueX, yRow, ValueWidth, LabelHeight);
+
+            yRow += RowHeight;
+            rLabAngleY.Set(LabelX, yRow, LabelWidth, LabelHeight);
+            rValAngleY.Set(ValueX, yRow, ValueWidth, LabelHeight);
+
+            yRow += RowHeight;
+            rLabIncP.Set(LabelX, yRow, LabelWidth, LabelHeight);
+            rResetIncP.Set(Button1X, yRow + ButtonYOff, ButtonWidth, ButtonHeight);
+            rValIncP.Set(ValueX, yRow, ValueWidth, LabelHeight);
+
+            yRow += RowHeight;
+            rLabIncR.Set(LabelX, yRow, LabelWidth, LabelHeight);
+            rResetIncR.Set(Button1X, yRow + ButtonYOff, ButtonWidth, ButtonHeight);
+            rValIncR.Set(ValueX, yRow, ValueWidth, LabelHeight);
+
+            yRow += RowHeight;
+            rLabIncY.Set(LabelX, yRow, LabelWidth, LabelHeight);
+            rResetIncY.Set(Button1X, yRow + ButtonYOff, ButtonWidth, ButtonHeight);
+            rValIncY.Set(ValueX, yRow, ValueWidth, LabelHeight);
+
+            yRow += RowHeight;
+            rLabRot.Set(LabelX, yRow, LabelWidth, LabelHeight);
+            rIncRot.Set(Button1X, yRow + ButtonYOff, ButtonWidth, ButtonHeight);
+            rDecRot.Set(Button2X, yRow + ButtonYOff, ButtonWidth, ButtonHeight);
+            rValRot.Set(ValueX, yRow, ValueWidth, LabelHeight);
+
+            yRow += RowHeight;
+            rLabFine.Set(LabelX, yRow, LabelWidth, LabelHeight);
+            rIncFine.Set(Button1X, yRow + ButtonYOff, ButtonWidth, ButtonHeight);
+            rDecFine.Set(Button2X, yRow + ButtonYOff, ButtonWidth, ButtonHeight);
+            rValFine.Set(ValueX, yRow, ValueWidth, LabelHeight);
+
+            yRow += RowHeight;
+            rLabPartRel.Set(LabelX, yRow, LabelPartRelWidth, LabelHeight);
+            rButPartRel.Set(ButPartRelX, yRow + ButtonYOff, ButtonWidth, ButtonHeight);
         }
 
         private void SetAppLaunchState()

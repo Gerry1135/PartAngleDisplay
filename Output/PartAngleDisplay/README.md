@@ -33,8 +33,13 @@ Version 0.3.2.1 for KSP 1.2 now stores the key bindings as strings rather than i
 
 Version 0.3.2.2 for KSP 1.2 fixes the loss of the toolbar button with Contract Configurator.
 
+Version 0.3.2.3 for KSP 1.2.x optimises the GUI code to reduce garbage creation.
+
 Change Log
 ==========
+	25/11/2016 23:58 GMT   Optimised GUI code to reduce garbage creation
+						   Updated to version 0.3.2.3
+
 	25/10/2016 17:14 GMT   Updated to latest version of ToolbarWrapper.cs
 						   Updated to version 0.3.2.2
 
