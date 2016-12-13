@@ -35,87 +35,93 @@ Version 0.3.2.2 for KSP 1.2 fixes the loss of the toolbar button with Contract C
 
 Version 0.3.2.3 for KSP 1.2.x optimises the GUI code to reduce garbage creation.
 
+Version 0.3.2.4 for KSP 1.2.x is built against KSP 1.2.2 and fixes the .version file.
+
 Change Log
 ==========
-	25/11/2016 23:58 GMT   Optimised GUI code to reduce garbage creation
-						   Updated to version 0.3.2.3
+	13/12/2016 07:16 GMT	Fixed .version file.
+							Built against KSP 1.2.2.1622
+							Updated to version 0.3.2.4
 
-	25/10/2016 17:14 GMT   Updated to latest version of ToolbarWrapper.cs
-						   Updated to version 0.3.2.2
+	25/11/2016 23:58 GMT	Optimised GUI code to reduce garbage creation
+							Updated to version 0.3.2.3
 
-	30/09/2016 09:41 GMT   Changed key binding settings to use textual KeyCode names
-						   Updated to version 0.3.2.1
+	25/10/2016 17:14 GMT	Updated to latest version of ToolbarWrapper.cs
+							Updated to version 0.3.2.2
 
-	15/09/2016 12:33 GMT   Rebuilt for KSP 1.2
-						   Updated to version 0.3.2.0
+	30/09/2016 09:41 GMT	Changed key binding settings to use textual KeyCode names
+							Updated to version 0.3.2.1
 
-	30/03/2016 19:08 GMT   Enabled rotation controls when dialog is closed
-	                       More garbage reduction
-						   Updated to version 0.3.1.1
+	15/09/2016 12:33 GMT	Rebuilt for KSP 1.2
+							Updated to version 0.3.2.0
 
-	09/03/2016 16:32 GMT   Updated for KSP 1.1
-                           Refactored rotation application to fix part relative rotation
-						   Updated to version 0.3.1.0
+	30/03/2016 19:08 GMT	Enabled rotation controls when dialog is closed
+							More garbage reduction
+							Updated to version 0.3.1.1
 
-	02/05/2015 18:05 GMT   Updated for KSP 1.0.2
-                           Fixed rotation in rotate mode to match stock behaviour
-						   Updated to version 0.3.0.1
+	09/03/2016 16:32 GMT	Updated for KSP 1.1
+							Refactored rotation application to fix part relative rotation
+							Updated to version 0.3.1.0
 
-	16/12/2014 14:38 GMT   Updated for KSP 0.90
-                           Changed fine increment cycling key to G (configurable)
-						   Added normal increment cycling key of B (configurable)
-						   Changed Mod-WASDQE to Ctrl-WASDQE (configurable)
-						   Updated to version 0.3.0.0
+	02/05/2015 18:05 GMT	Updated for KSP 1.0.2
+							Fixed rotation in rotate mode to match stock behaviour
+							Updated to version 0.3.0.1
 
-	12/08/2014 19:50 GMT   Fixed yaw and roll controls when editor mode is changed using Editor Extensions
-                           Updated to version 0.2.4.5
+	16/12/2014 14:38 GMT	Updated for KSP 0.90
+							Changed fine increment cycling key to G (configurable)
+							Added normal increment cycling key of B (configurable)
+							Changed Mod-WASDQE to Ctrl-WASDQE (configurable)
+							Updated to version 0.3.0.0
 
-	04/08/2014 19:50 GMT   Now supports both the stock and Blizzy's toolbars
-                           Use of stock toolbar can be disabled in settings (useAppLaunch)
-                           Updated to version 0.2.4.4
+	12/08/2014 19:50 GMT	Fixed yaw and roll controls when editor mode is changed using Editor Extensions
+							Updated to version 0.2.4.5
 
-	01/08/2014 11:57 GMT   Now allows the keyboard shortcuts to be configured in the settings file
-                           Updated to version 0.2.4.3
+	04/08/2014 19:50 GMT	Now supports both the stock and Blizzy's toolbars
+							Use of stock toolbar can be disabled in settings (useAppLaunch)
+							Updated to version 0.2.4.4
 
-	26/07/2014 17:33 GMT   Compiled against KSP 0.24.2
-	                       Added loading and saving of settings (window position, visibility and all the control settings)
-	                       Updated to version 0.2.4.2
+	01/08/2014 11:57 GMT	Now allows the keyboard shortcuts to be configured in the settings file
+							Updated to version 0.2.4.3
 
-	25/07/2014 08:43 GMT   Compiled against KSP 0.24.1
-	                       Updated to version 0.2.4.1
+	26/07/2014 17:33 GMT	Compiled against KSP 0.24.2
+							Added loading and saving of settings (window position, visibility and all the control settings)
+							Updated to version 0.2.4.2
 
-	23/07/2014 22:50 GMT   Fixed build to target correct .NET runtime
-	                       Updated to version 0.2.4.0
+	25/07/2014 08:43 GMT	Compiled against KSP 0.24.1
+							Updated to version 0.2.4.1
 
-    17/07/2014 22:27 GMT   Swapped roll and yaw displays in SPH
-                           Compiled against KSP 0.24
-                           Updated version to 0.2.3.0
+	23/07/2014 22:50 GMT	Fixed build to target correct .NET runtime
+							Updated to version 0.2.4.0
 
-    13/07/2014 16:37 GMT   Implemented "Part-relative" mode that changes all part rotation axes to be relative to the selected part
-                           Updated version to 0.2.2.0
+	17/07/2014 22:27 GMT	Swapped roll and yaw displays in SPH
+							Compiled against KSP 0.24
+							Updated version to 0.2.3.0
 
-    13/07/2014 12:29 GMT   Now totally overrides part rotation hotkeys
-                           Allows changing of the default and fine rotation increments
-                           Updated version to 0.2.1.0
+	13/07/2014 16:37 GMT	Implemented "Part-relative" mode that changes all part rotation axes to be relative to the selected part
+							Updated version to 0.2.2.0
 
-    10/07/2014 21:52 GMT   Now uses configured key bindings for part rotation rather than hardwired WASDQE
-                           Updated version to 0.2.0.2
+	13/07/2014 12:29 GMT	Now totally overrides part rotation hotkeys
+							Allows changing of the default and fine rotation increments
+							Updated version to 0.2.1.0
 
-    10/07/2014 20:53 GMT   Fixed roll and yaw rotation axes in SPH
-                           Updated version to 0.2.0.1
-                           Fixed version in title bar
+	10/07/2014 21:52 GMT	Now uses configured key bindings for part rotation rather than hardwired WASDQE
+							Updated version to 0.2.0.2
 
-    10/07/2014 12:12 GMT   Added handling of Mod-WASDQE to rotate by the entered amounts in the respective axes
-                           Updated version to 0.2.0.0
+	10/07/2014 20:53 GMT	Fixed roll and yaw rotation axes in SPH
+							Updated version to 0.2.0.1
+							Fixed version in title bar
 
-    28/05/2014 09:48 GMT   Added buttons to zero the increment fields
-                           Rearranged window to avoid things moving when entering values
-                           First release version 0.1.0.1
+	10/07/2014 12:12 GMT	Added handling of Mod-WASDQE to rotate by the entered amounts in the respective axes
+							Updated version to 0.2.0.0
+
+	28/05/2014 09:48 GMT	Added buttons to zero the increment fields
+							Rearranged window to avoid things moving when entering values
+							First release version 0.1.0.1
     
-    23/05/2014 14:06 GMT   Fixed editable fields to work better
+	23/05/2014 14:06 GMT	Fixed editable fields to work better
     
-    20/05/2014 23:17 GMT   Removed some unused code and logging
+	20/05/2014 23:17 GMT	Removed some unused code and logging
     
-    20/05/2014 15:52 GMT   First release
+	20/05/2014 15:52 GMT	First release
 
 The code is released under the MIT license (see PartAngleDisplay/EditorWindow.cs).
